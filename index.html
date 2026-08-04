@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIVANT | TENT 組織分析 & 考察アプリ</title>
+  <meta name="description" content="TBS日曜劇場VIVANTのテント組織構成・登場人物関係図・X考察分析ページ">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Oswald:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <script>
+    function forceDismissSpoiler() {
+      var gate = document.getElementById('spoiler-gate');
+      if (gate) {
+        gate.style.setProperty('display', 'none', 'important');
+        gate.style.setProperty('pointer-events', 'none', 'important');
+        if (gate.parentNode) {
+          gate.parentNode.removeChild(gate);
+        }
+      }
+      document.body.classList.remove('spoiler-active');
+      try { localStorage.setItem('vivant_spoiler_ok', '1'); } catch(e){}
+    }
+
+    function verifyPasscode() {
+      var input = document.getElementById('passcode-input');
+      var error = document.getElementById('passcode-error');
+      var val = input ? input.value.trim() : '';
+
+      if (val === '32118') {
+        if (error) {
+          error.style.color = '#7ec8ff';
+          error.textContent = '▶ ACCESS GRANTED: 接触コード承認。解凍中...';
+        }
+        setTimeout(function() {
+          forceDismissSpoiler();
+        }, 300);
+      } else {
+        if (error) {
+          error.style.color = '#ff4d4d';
+          error.textContent = '⚠ ACCESS DENIED: 接触コードが違います (32118 を入力)';
+        }
+        if (input) {
+          input.style.borderColor = '#ff4d4d';
+          input.classList.add('shake-input');
+          setTimeout(function(){ input.classList.remove('shake-input'); }, 500);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var input = document.getElementById('passcode-input');
+      if (input) {
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') verifyPasscode();
+        });
+      }
+    });
+  </script>
+
+  <!-- ════════════════════════════════════════
+       SPOILER GATE — ネタバレ警告モーダル
+  ═══════════════════════════════════════════ -->
+  <div id="spoiler-gate" class="spoiler-gate" aria-modal="true" role="dialog" aria-label="ネタバレ警告">
+    <!-- 砂嵐パーティクル背景 -->
+    <canvas id="spoilerCanvas" class="spoiler-canvas"></canvas>
+
+    <div class="spoiler-inner">
+      <!-- ロゴ -->
+      <div class="spoiler-logo">
+        <div class="spoiler-logo-text">VIVANT</div>
+        <div class="spoiler-logo-sub">情報分析システム</div>
+      </div>
+
+      <!-- 警告アイコン -->
+      <div class="spoiler-icon-wrap">
+        <div class="spoiler-icon">⚠</div>
+        <div class="spoiler-icon-ring"></div>
+        <div class="spoiler-icon-ring spoiler-icon-ring--2"></div>
+      </div>
+
+        <!-- 警告テキスト -->
+        <div class="spoiler-body">
+          <div class="spoiler-classified-tag">— CLASSIFIED SECURITY GATE —</div>
+          <h1 class="spoiler-title">このサイトはネタバレを含みます</h1>
+          <p class="spoiler-desc">
+            TBS日曜劇場『VIVANT』のストーリー・人物関係・重大な考察情報が含まれます。<br>
+            アクセスするには指定の<strong style="color:var(--amber); font-weight:700;">接触コード [ 32118 ]</strong> を入力してください。
+          </p>
+
+          <!-- 接触コード入力エリア -->
+          <div class="passcode-container">
+            <div class="passcode-input-column">
+              <input type="text" id="passcode-input" class="passcode-field" placeholder="接触コードを入力" maxlength="5" autocomplete="off" inputmode="numeric">
+              <button id="spoiler-proceed" class="spoiler-btn passcode-enter-btn" type="button" onclick="verifyPasscode()">
+                <span class="spoiler-btn-text">Enter</span>
+                <span class="spoiler-btn-arrow">↵</span>
+              </button>
+            </div>
+            <div id="passcode-error" class="passcode-error-msg"></div>
+          </div>
+
+          <p class="spoiler-note">※ 接触コード <strong style="color:#d4a800;">32118</strong> を入力して「接触（進む）」を押してください</p>
+        </div>
+
+      <!-- アクセスカウンター -->
+      <div class="spoiler-counter">
+        <div class="counter-divider"></div>
+        <div class="counter-label">ACCESS COUNTER</div>
+        <div class="counter-grid">
+          <div class="counter-item">
+            <div class="counter-num" id="cnt-daily">—</div>
+            <div class="counter-unit">TODAY</div>
+          </div>
+          <div class="counter-sep">|</div>
+          <div class="counter-item">
+            <div class="counter-num" id="cnt-weekly">—</div>
+            <div class="counter-unit">THIS WEEK</div>
+          </div>
+          <div class="counter-sep">|</div>
+          <div class="counter-item">
+            <div class="counter-num" id="cnt-total">—</div>
+            <div class="counter-unit">TOTAL</div>
+          </div>
+        </div>
+        <div class="counter-status" id="counter-status">集計中...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Particle Background -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Sand Storm Effect -->
+  <div class="sand-overlay"></div>
+
+  <!-- Header -->
+  <header id="header">
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <div class="logo-vivant">VIVANT</div>
+        <div class="logo-subtitle">情報分析システム</div>
+      </div>
+      <nav class="main-nav">
+        <button class="nav-btn active" data-page="org" id="nav-org">
+          <span class="nav-icon">⬡</span>
+          <span>TENT組織図</span>
+        </button>
+        <button class="nav-btn" data-page="relations" id="nav-relations">
+          <span class="nav-icon">◈</span>
+          <span>人物相関図</span>
+        </button>
+        <button class="nav-btn" data-page="analysis" id="nav-analysis">
+          <span class="nav-icon">◉</span>
+          <span>X考察分析</span>
+        </button>
+      </nav>
+      <div class="header-classified">
+        <span class="blink-text">■ TOP SECRET ■</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="main-content">
+
+    <!-- PAGE 1: Organization Charts (Tabbed) -->
+        <!-- PAGE 1: Organization Charts (Original Pyramid Style) -->
+    <section id="page-org" class="page active">
+      <div class="page-header">
+        <div class="page-tag">CLASSIFIED</div>
+        <h2 class="page-title">組織 <span class="accent">構成図</span></h2>
+        <p class="page-desc">VIVANT に登場する主要組織の内部構成・指揮系統の分析データ（名前をタップでGoogle画像検索 / 「詳細 ▼」で詳細プロフィール閲覧）</p>
+      </div>
+
+      <!-- Organization Tabs -->
+      <div class="org-tabs" id="org-tabs">
+        <button class="org-tab active" data-org="tent" type="button" onclick="switchOrgTab('tent')">
+          <span class="org-tab-icon">◆</span>TENT
+        </button>
+        <button class="org-tab" data-org="beppan" type="button" onclick="switchOrgTab('beppan')">
+          <span class="org-tab-icon">▲</span>別班
+        </button>
+        <button class="org-tab" data-org="kouan" type="button" onclick="switchOrgTab('kouan')">
+          <span class="org-tab-icon">◉</span>公安
+        </button>
+        <button class="org-tab" data-org="marubishi" type="button" onclick="switchOrgTab('marubishi')">
+          <span class="org-tab-icon">◈</span>丸菱商事
+        </button>
+        <button class="org-tab" data-org="balka" type="button" onclick="switchOrgTab('balka')">
+          <span class="org-tab-icon">⬡</span>バルカ政府
+        </button>
+        <button class="org-tab" data-org="other" type="button" onclick="switchOrgTab('other')">
+          <span class="org-tab-icon">○</span>その他
+        </button>
+      </div>
+
+            <!-- ══ TENT ══ -->
+      <div class="org-panel active" id="org-tent">
+        <div class="org-info-bar">
+          <div class="org-info-name" style="color:#c0392b">THE TENT（テント）</div>
+          <div class="org-info-desc">ノゴーン・ベキが創設した国際テロ組織。全7名の「モニター（潜伏工作員）」が3つのランクに分類され世界中に潜伏。</div>
+        </div>
+        <div class="org-container">
+          <!-- Level 1: Founder -->
+          <div class="org-level level-1">
+          <div class="org-card leader-card" data-member="beki" onclick="openModal('beki')" onclick="openModal('beki')">
+            <div class="card-rank">LEADER / 創設者</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+ノゴーン・ベキ+役所+広司" target="_blank" class="card-name-link" title="ノゴーン・ベキ の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">ノゴーン・ベキ</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">テント創設者・最高指導者</div>
+            <div class="card-actor">役所 広司</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector single"></div>
+          
+          <!-- Level 2: No.2 -->
+          <div class="org-level level-2">
+          <div class="org-card no2-card" data-member="nokoru" onclick="openModal('nokoru')" onclick="openModal('nokoru')">
+            <div class="card-rank">No.2 / 後継者</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+ノコル+二宮+和也" target="_blank" class="card-name-link" title="ノコル の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">ノコル</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">組織No.2 / ムルーデル代表</div>
+            <div class="card-actor">二宮 和也</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector triple"></div>
+          
+          <!-- Level 3: Executives -->
+          <div class="org-level level-3">
+          <div class="org-card exec-card" data-member="bataraka" onclick="openModal('bataraka')" onclick="openModal('bataraka')">
+            <div class="card-rank">幹部</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+バトラカ+林+泰文" target="_blank" class="card-name-link" title="バトラカ の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">バトラカ</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">軍事統括 / Y2K代表</div>
+            <div class="card-actor">林 泰文</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card" data-member="piyo" onclick="openModal('piyo')" onclick="openModal('piyo')">
+            <div class="card-rank">幹部</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+ピヨ+吉原+光夫" target="_blank" class="card-name-link" title="ピヨ の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">ピヨ</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">ノコル側近 / 狙撃手</div>
+            <div class="card-actor">吉原 光夫</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card" data-member="ali" onclick="openModal('ali')" onclick="openModal('ali')">
+            <div class="card-rank">幹部（ランク2モニター兼任）</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+アリ+山中+崇" target="_blank" class="card-name-link" title="アリ の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">アリ</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">日本担当 / GFL社社長</div>
+            <div class="card-actor">山中 崇</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector quad"></div>
+
+                                        <!-- Level 4: Monitor System (ランク1モニター全7名構造) -->
+          <div class="monitor-system-title">◈ テント モニター組織網（最上位「ランク1」モニター：全7名）</div>
+
+          <!-- モニター統括幹部 -->
+          <div class="monitor-rank-header monitor-top-hdr">【 モニター統括 】日本担当幹部・全モニター指揮官</div>
+          <div class="org-level level-3">
+          <div class="org-card exec-card rank-top-card" data-member="ali" onclick="openModal('ali')" onclick="openModal('ali')">
+            <div class="card-rank">モニター統括幹部</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+アリ+山中+崇" target="_blank" class="card-name-link" title="アリ の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">アリ</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">日本担当幹部 / モニター統括</div>
+            <div class="card-actor">山中 崇</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+
+          <div class="org-connector single"></div>
+
+          <!-- ランク1: 全7名（最重要機関潜伏） -->
+          <div class="monitor-rank-header rank1-hdr">【 ランク 1 モニター 】世界に全7名存在する最高位潜伏工作員</div>
+          <div class="org-level level-4">
+          <div class="org-card monitor-card rank1-card" data-member="shinjo" onclick="openModal('shinjo')" onclick="openModal('shinjo')">
+            <div class="card-rank">ランク1 (1/7)</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+新庄+浩太郎+竜星+涼" target="_blank" class="card-name-link" title="新庄 浩太郎 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">新庄 浩太郎</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">警視庁公安部 / 二重スパイ</div>
+            <div class="card-actor">竜星 涼</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank1-card unknown-card" data-member="monitor_unknown1" onclick="openModal('monitor_unknown1')" onclick="openModal('monitor_unknown1')">
+            <div class="card-rank">ランク1 (2/7)</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+？？？（未判明A）+非公開" target="_blank" class="card-name-link" title="？？？（未判明A） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">？？？（未判明A）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">防衛省・国家中枢 潜伏疑惑</div>
+            <div class="card-actor">非公開</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank1-card unknown-card" data-member="monitor_unknown2" onclick="openModal('monitor_unknown2')" onclick="openModal('monitor_unknown2')">
+            <div class="card-rank">ランク1 (3/7)</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+？？？（未判明B）+非公開" target="_blank" class="card-name-link" title="？？？（未判明B） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">？？？（未判明B）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">警察・情報機関 潜伏疑惑</div>
+            <div class="card-actor">非公開</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank1-card unknown-card" data-member="monitor_unknown3" onclick="openModal('monitor_unknown3')" onclick="openModal('monitor_unknown3')">
+            <div class="card-rank">ランク1 (4/7)</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+？？？（未判明C）+非公開" target="_blank" class="card-name-link" title="？？？（未判明C） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">？？？（未判明C）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">外務省・外交ルート 潜伏疑惑</div>
+            <div class="card-actor">非公開</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div style="height: 12px;"></div>
+          <div class="org-level level-4">
+          <div class="org-card monitor-card rank1-card unknown-card" data-member="monitor_unknown4" onclick="openModal('monitor_unknown4')" onclick="openModal('monitor_unknown4')">
+            <div class="card-rank">ランク1 (5/7)</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+？？？（未判明D）+非公開" target="_blank" class="card-name-link" title="？？？（未判明D） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">？？？（未判明D）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">金融・基幹インフラ 潜伏疑惑</div>
+            <div class="card-actor">非公開</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank1-card unknown-card" data-member="monitor_unknown5" onclick="openModal('monitor_unknown5')" onclick="openModal('monitor_unknown5')">
+            <div class="card-rank">ランク1 (6/7)</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+？？？（未判明E）+非公開" target="_blank" class="card-name-link" title="？？？（未判明E） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">？？？（未判明E）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">サイバー・高度暗号網 潜伏疑惑</div>
+            <div class="card-actor">非公開</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank1-card unknown-card" data-member="monitor_unknown6" onclick="openModal('monitor_unknown6')" onclick="openModal('monitor_unknown6')">
+            <div class="card-rank">ランク1 (7/7)</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+？？？（未判明F）+非公開" target="_blank" class="card-name-link" title="？？？（未判明F） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">？？？（未判明F）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">海外・国際機関 潜伏疑惑</div>
+            <div class="card-actor">非公開</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+
+          <div class="org-connector single"></div>
+
+          <!-- ランク3: 末端モニター・現場構成員 -->
+          <div class="monitor-rank-header rank3-hdr">【 末端モニター・現場構成員 】</div>
+          <div class="org-level level-4">
+          <div class="org-card monitor-card rank3-card" data-member="yamatomo" onclick="openModal('yamatomo')" onclick="openModal('yamatomo')">
+            <div class="card-rank">ランク3 モニター（末端）</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+山本+巧+迫田+孝也" target="_blank" class="card-name-link" title="山本 巧 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">山本 巧</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">丸菱商事 / アリ指示で誤送金</div>
+            <div class="card-actor">迫田 孝也</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank3-card" data-member="mata" onclick="openModal('mata')" onclick="openModal('mata')">
+            <div class="card-rank">構成員</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+マタ+内村+遥" target="_blank" class="card-name-link" title="マタ の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">マタ</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">テント現場構成員</div>
+            <div class="card-actor">内村 遥</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank3-card" data-member="shichi" onclick="openModal('shichi')" onclick="openModal('shichi')">
+            <div class="card-rank">構成員</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+シチ+井上+肇" target="_blank" class="card-name-link" title="シチ の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">シチ</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">テント現場構成員</div>
+            <div class="card-actor">井上 肇</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 別班 ══ -->
+      <div class="org-panel" id="org-beppan" style="display:none;">
+        <div class="org-info-bar">
+          <div class="org-info-name" style="color:#5ba8e8">別班（BEPPAN）</div>
+          <div class="org-info-desc">陸上自衛隊の非公式諜報部隊。政府の指示外で動く影の工作組織。乃木憂助ら精鋭が所属。</div>
+        </div>
+        <div class="org-container">
+          <div class="org-level level-1">
+          <div class="org-card leader-card beppan-card" data-member="sakurai" onclick="openModal('sakurai')" onclick="openModal('sakurai')">
+            <div class="card-rank">司令塔</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+桜井+里美+キムラ+緑子" target="_blank" class="card-name-link" title="桜井 里美 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">桜井 里美</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">別班 司令塔・情報指揮</div>
+            <div class="card-actor">キムラ 緑子</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector single"></div>
+          <div class="org-level level-3">
+          <div class="org-card exec-card beppan-card" data-member="nogi" onclick="openModal('nogi')" onclick="openModal('nogi')">
+            <div class="card-rank">主任工作員</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+乃木+憂助+堺+雅人" target="_blank" class="card-name-link" title="乃木 憂助 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">乃木 憂助</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">別班 主任工作員 / 丸菱商事</div>
+            <div class="card-actor">堺 雅人</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card beppan-card" data-member="kurosu" onclick="openModal('kurosu')" onclick="openModal('kurosu')">
+            <div class="card-rank">工作員</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+黒須+駿+松坂+桃李" target="_blank" class="card-name-link" title="黒須 駿 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">黒須 駿</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">別班 工作員 / 乃木の相棒</div>
+            <div class="card-actor">松坂 桃李</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card beppan-card" data-member="nagano" onclick="openModal('nagano')" onclick="openModal('nagano')">
+            <div class="card-rank">工作員（S2判明）</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+長野+利彦+小日向+文世" target="_blank" class="card-name-link" title="長野 利彦 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">長野 利彦</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">丸菱専務 / S2別班員判明</div>
+            <div class="card-actor">小日向 文世</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <!-- ══ 公安 ══ -->
+      <div class="org-panel" id="org-kouan" style="display:none;">
+        <div class="org-info-bar">
+          <div class="org-info-name" style="color:#6be86b">警視庁 公安部</div>
+          <div class="org-info-desc">国内外の治安を守る組織。別班・テントを追跡しながら、時に協力関係も構築する。</div>
+        </div>
+        <div class="org-container">
+          <div class="org-level level-1">
+          <div class="org-card leader-card kouan-card" data-member="sano" onclick="openModal('sano')" onclick="openModal('sano')">
+            <div class="card-rank">公安部長</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+佐野+文彦+坂東+彌十郎" target="_blank" class="card-name-link" title="佐野 文彦 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">佐野 文彦</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">警視庁公安部 部長</div>
+            <div class="card-actor">坂東 彌十郎</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector single"></div>
+          <div class="org-level level-2">
+          <div class="org-card no2-card kouan-card" data-member="nozaki" onclick="openModal('nozaki')" onclick="openModal('nozaki')">
+            <div class="card-rank">理事官</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+野崎+守+阿部+寛" target="_blank" class="card-name-link" title="野崎 守 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">野崎 守</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">外事第4課 理事官</div>
+            <div class="card-actor">阿部 寛</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector triple"></div>
+          <div class="org-level level-3">
+          <div class="org-card exec-card kouan-card" data-member="shinjo" onclick="openModal('shinjo')" onclick="openModal('shinjo')">
+            <div class="card-rank">二重スパイ</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+新庄+浩太郎+竜星+涼" target="_blank" class="card-name-link" title="新庄 浩太郎 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">新庄 浩太郎</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">外事第4課 / テントモニター</div>
+            <div class="card-actor">竜星 涼</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card kouan-card" data-member="tojo" onclick="openModal('tojo')" onclick="openModal('tojo')">
+            <div class="card-rank">サイバー捜査</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+東条+実+濱田+岳" target="_blank" class="card-name-link" title="東条 実 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">東条 実</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">サイバー犯罪対策課</div>
+            <div class="card-actor">濱田 岳</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card kouan-card" data-member="suzuki" onclick="openModal('suzuki')" onclick="openModal('suzuki')">
+            <div class="card-rank">サイバー捜査</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+鈴木+祥太+岩本+照" target="_blank" class="card-name-link" title="鈴木 祥太 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">鈴木 祥太</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">サイバー捜査官</div>
+            <div class="card-actor">岩本 照</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+        </div>
+      </div>
+            <!-- ══ 丸菱商事（拡充版 企業組織図） ══ -->
+      <div class="org-panel" id="org-marubishi" style="display:none;">
+        <div class="org-info-bar">
+          <div class="org-info-name" style="color:#c8a96e">丸菱商事（MARUBISHI CORPORATION）</div>
+          <div class="org-info-desc">大手総合商社。乃木・長野ら別班員の潜伏先であり、テントのモニター（山本）やハッカー（太田）が入り混じる複層構造企業。</div>
+        </div>
+        <div class="org-container">
+          
+          <!-- Top Executive Level (経営陣・社長) -->
+          <div class="monitor-rank-header rank1-hdr" style="color:#e8c84a;background:rgba(200,169,110,0.1);border-color:rgba(200,169,110,0.3);">【 役員会・経営トップ 】</div>
+          <div class="org-level level-1">
+          <div class="org-card leader-card marubishi-card" data-member="usami" onclick="openModal('usami')" onclick="openModal('usami')">
+            <div class="card-rank">代表取締役社長</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+宇佐美+哲也+市川+猿弥" target="_blank" class="card-name-link" title="宇佐美 哲也 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">宇佐美 哲也</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">丸菱商事 代表取締役社長</div>
+            <div class="card-actor">市川 猿弥</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector single"></div>
+          
+          <div class="org-level level-2">
+          <div class="org-card no2-card marubishi-card" data-member="nagano" onclick="openModal('nagano')" onclick="openModal('nagano')">
+            <div class="card-rank">専務取締役（別班）</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+長野+利彦+小日向+文世" target="_blank" class="card-name-link" title="長野 利彦 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">長野 利彦</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">専務取締役 / S2別班員判明</div>
+            <div class="card-actor">小日向 文世</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card no2-card marubishi-card" data-member="mizukami" onclick="openModal('mizukami')" onclick="openModal('mizukami')">
+            <div class="card-rank">常務取締役</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+水上+志郎+古舘+寛治" target="_blank" class="card-name-link" title="水上 志郎 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">水上 志郎</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">常務取締役 / 専務と対立</div>
+            <div class="card-actor">古舘 寛治</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+          <div class="org-connector triple"></div>
+
+          <!-- 部門別組織 (エネルギー事業部・業務部・財務部・経理部) -->
+          <div class="monitor-system-title">◈ 社内各部署・主要関係者</div>
+
+          <!-- エネルギー事業部 (乃木の所属部署) -->
+          <div class="monitor-rank-header rank2-hdr">【 エネルギー事業部 2課 】（誤送金発端の部署）</div>
+          <div class="org-level level-3">
+          <div class="org-card exec-card marubishi-card" data-member="kawai" onclick="openModal('kawai')" onclick="openModal('kawai')">
+            <div class="card-rank">事業部部長</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+河合+幸二+渡辺+邦斗" target="_blank" class="card-name-link" title="河合 幸二 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">河合 幸二</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">エネルギー事業部 部長</div>
+            <div class="card-actor">渡辺 邦斗</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card marubishi-card" data-member="nogi" onclick="openModal('nogi')" onclick="openModal('nogi')">
+            <div class="card-rank">2課 課長（別班）</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+乃木+憂助+堺+雅人" target="_blank" class="card-name-link" title="乃木 憂助 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">乃木 憂助</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">主任工作員 / 丸菱社員</div>
+            <div class="card-actor">堺 雅人</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card marubishi-card" data-member="hirose" onclick="openModal('hirose')" onclick="openModal('hirose')">
+            <div class="card-rank">2課 社員</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+広瀬+薫+珠城+りょう" target="_blank" class="card-name-link" title="広瀬 薫 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">広瀬 薫</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">エネルギー事業部 社員</div>
+            <div class="card-actor">珠城 りょう</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card exec-card marubishi-card" data-member="mizukoshi" onclick="openModal('mizukoshi')" onclick="openModal('mizukoshi')">
+            <div class="card-rank">2課 社員</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+水越+智洋+西山+潤" target="_blank" class="card-name-link" title="水越 智洋 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">水越 智洋</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">エネルギー事業部 社員</div>
+            <div class="card-actor">西山 潤</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+
+          <div class="org-connector single"></div>
+
+          <!-- 他部署 (業務部・財務部・経理部) -->
+          <div class="monitor-rank-header rank3-hdr">【 業務部・財務部・経理部 】（システム改ざん・送金決済）</div>
+          <div class="org-level level-4">
+          <div class="org-card monitor-card rank3-card" data-member="yamatomo" onclick="openModal('yamatomo')" onclick="openModal('yamatomo')">
+            <div class="card-rank">業務部 部長（モニター）</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+山本+巧+迫田+孝也" target="_blank" class="card-name-link" title="山本 巧 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">山本 巧</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">業務部 / テント末端モニター</div>
+            <div class="card-actor">迫田 孝也</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank3-card" data-member="ota" onclick="openModal('ota')" onclick="openModal('ota')">
+            <div class="card-rank">財務部（ハッカー）</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+太田+梨花+飯沼+愛" target="_blank" class="card-name-link" title="太田 梨花 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">太田 梨花</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">財務部 / blue@walker</div>
+            <div class="card-actor">飯沼 愛</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card monitor-card rank3-card" data-member="hara" onclick="openModal('hara')" onclick="openModal('hara')">
+            <div class="card-rank">経理部 部長</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+原+智彦+橋本+さとし" target="_blank" class="card-name-link" title="原 智彦 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">原 智彦</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">経理部 部長 / 決裁担当</div>
+            <div class="card-actor">橋本 さとし</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ バルカ政府 ══ -->
+      <div class="org-panel" id="org-balka" style="display:none;">
+        <div class="org-info-bar">
+          <div class="org-info-name" style="color:#d4a800">バルカ共和国 政府・警察</div>
+          <div class="org-info-desc">架空の中央アジア国家。テントが活動拠点とし、フローライト採掘の舞台。政府・警察が複雑に関与。</div>
+        </div>
+        <div class="org-container">
+          <div class="org-level level-2">
+          <div class="org-card no2-card balka-card" data-member="cinggis" onclick="openModal('cinggis')" onclick="openModal('cinggis')">
+            <div class="card-rank">警察 警視</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+チンギス+Batbold" target="_blank" class="card-name-link" title="チンギス の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">チンギス</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">バルカ警察 警視</div>
+            <div class="card-actor">Batbold</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card no2-card balka-card" data-member="hiromichi" onclick="openModal('hiromichi')" onclick="openModal('hiromichi')">
+            <div class="card-rank">安全保障顧問</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+ヤルノ（広道）+河内+大和" target="_blank" class="card-name-link" title="ヤルノ（広道） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">ヤルノ（広道）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">国家安全保障顧問</div>
+            <div class="card-actor">河内 大和</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card no2-card balka-card" data-member="jemaine" onclick="openModal('jemaine')" onclick="openModal('jemaine')">
+            <div class="card-rank">政府・警察</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+ジェメイン+Ganbold" target="_blank" class="card-name-link" title="ジェメイン の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">ジェメイン</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">バルカ政府・警察幹部</div>
+            <div class="card-actor">Ganbold</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <!-- ══ その他 ══ -->
+      <div class="org-panel" id="org-other" style="display:none;">
+        <div class="org-info-bar">
+          <div class="org-info-name" style="color:#a07840">その他 関連組織・人物</div>
+          <div class="org-info-desc">世界医療機構・フリーランス・各国関係者など、複数の組織に横断する関連人物たち。</div>
+        </div>
+        <div class="org-container">
+          <div class="org-level level-2">
+          <div class="org-card no2-card other-card" data-member="yuzuki" onclick="openModal('yuzuki')" onclick="openModal('yuzuki')">
+            <div class="card-rank">WHO 医師</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+柚木+薫+二階堂+ふみ" target="_blank" class="card-name-link" title="柚木 薫 の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">柚木 薫</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">医師 / 乃木の理解者</div>
+            <div class="card-actor">二階堂 ふみ</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="org-card no2-card other-card" data-member="hayato" onclick="openModal('hayato')" onclick="openModal('hayato')">
+            <div class="card-rank">AIシステム</div>
+            <div class="card-name-wrap">
+              <a href="https://www.google.com/search?tbm=isch&q=VIVANT+ハヤト（AI）+声：????" target="_blank" class="card-name-link" title="ハヤト（AI） の画像をGoogleで検索" rel="noopener" onclick="event.stopPropagation();">
+                <span class="card-name">ハヤト（AI）</span>
+                <span class="search-icon">🔍</span>
+              </a>
+            </div>
+            <div class="card-role">謎の高度AIシステム</div>
+            <div class="card-actor">声：????</div>
+            <div class="card-detail-btn">詳細 ▼</div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="page-relations" class="page">
+      <div class="page-header">
+        <div class="page-tag">ANALYSIS</div>
+        <h2 class="page-title">登場人物 <span class="accent">相関図</span></h2>
+        <p class="page-desc">主要人物と各組織の関係性マップ</p>
+      </div>
+
+      <!-- Relations Filter -->
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">全員</button>
+        <button class="filter-btn" data-filter="beppan">別班</button>
+        <button class="filter-btn" data-filter="tent">テント</button>
+        <button class="filter-btn" data-filter="kouan">公安</button>
+        <button class="filter-btn" data-filter="other">その他</button>
+      </div>
+
+      <!-- Relations Network -->
+      <div class="relations-container">
+        <canvas id="relationsCanvas"></canvas>
+
+        <!-- Character Cards Grid -->
+        <div class="character-grid">
+          <div class="char-card" data-org="other" data-id="usami" onclick="openModal('usami')" onclick="openModal('usami')">
+            <div class="char-info">
+              <div class="char-name-wrap">
+                <a href="https://www.google.com/search?tbm=isch&q=VIVANT+宇佐美哲也" target="_blank" class="char-name-link" title="宇佐美 哲也" rel="noopener" onclick="event.stopPropagation();">
+                  <span class="char-name">宇佐美 哲也</span>
+                  <span class="search-icon">🔍</span>
+                </a>
+              </div>
+              <div class="char-role">丸菱商事 社長</div>
+              <div class="char-actor">市川 猿弥</div>
+            </div>
+            <div class="char-detail-btn">詳細 ▼</div>
+          </div>
+          <div class="char-card" data-org="other" data-id="mizukami" onclick="openModal('mizukami')" onclick="openModal('mizukami')">
+            <div class="char-info">
+              <div class="char-name-wrap">
+                <a href="https://www.google.com/search?tbm=isch&q=VIVANT+水上志郎" target="_blank" class="char-name-link" title="水上 志郎" rel="noopener" onclick="event.stopPropagation();">
+                  <span class="char-name">水上 志郎</span>
+                  <span class="search-icon">🔍</span>
+                </a>
+              </div>
+              <div class="char-role">丸菱商事 常務</div>
+              <div class="char-actor">古舘 寛治</div>
+            </div>
+            <div class="char-detail-btn">詳細 ▼</div>
+          </div>
+
+          <!-- 乃木 (Center/Main) -->
+          <div class="char-card protagonist" data-org="beppan" data-id="nogi">
+            <div class="char-badge beppan-badge">別班</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar nogi-avatar">
+                <span>乃木</span>
+              </div>
+              <div class="org-dots">
+                <span class="dot beppan-dot" title="別班"></span>
+                <span class="dot tent-dot" title="テント関係"></span>
+              </div>
+            </div>
+            <div class="char-name">乃木 憂助</div>
+            <div class="char-role">丸菱商事社員 / 別班工作員</div>
+            <div class="char-actor">堺 雅人</div>
+            <div class="char-tags">
+              <span class="tag">主人公</span>
+              <span class="tag">別人格F</span>
+              <span class="tag">ベキの実子</span>
+            </div>
+          </div>
+
+          <!-- 野崎 -->
+          <div class="char-card" data-org="kouan" data-id="nozaki" onclick="openModal('nozaki')" onclick="openModal('nozaki')">
+            <div class="char-badge kouan-badge">公安</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar nozaki-avatar">
+                <span>野崎</span>
+              </div>
+            </div>
+            <div class="char-name">野崎 守</div>
+            <div class="char-role">公安部外事第4課 理事官</div>
+            <div class="char-actor">阿部 寛</div>
+            <div class="char-tags">
+              <span class="tag">乃木の対峙者</span>
+              <span class="tag">協力者</span>
+            </div>
+          </div>
+
+          <!-- 柚木 -->
+          <div class="char-card" data-org="other" data-id="yuzuki" onclick="openModal('yuzuki')" onclick="openModal('yuzuki')">
+            <div class="char-badge other-badge">世界医療</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar yuzuki-avatar">
+                <span>柚木</span>
+              </div>
+            </div>
+            <div class="char-name">柚木 薫</div>
+            <div class="char-role">世界医療機構医師</div>
+            <div class="char-actor">二階堂 ふみ</div>
+            <div class="char-tags">
+              <span class="tag">乃木の理解者</span>
+              <span class="tag">バルカで出会う</span>
+            </div>
+          </div>
+
+          <!-- 黒須 -->
+          <div class="char-card" data-org="beppan" data-id="kurosu" onclick="openModal('kurosu')" onclick="openModal('kurosu')">
+            <div class="char-badge beppan-badge">別班</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar kurosu-avatar">
+                <span>黒須</span>
+              </div>
+            </div>
+            <div class="char-name">黒須 駿</div>
+            <div class="char-role">別班工作員 / 乃木の相棒</div>
+            <div class="char-actor">松坂 桃李</div>
+            <div class="char-tags">
+              <span class="tag">乃木の相棒</span>
+              <span class="tag">S2継続</span>
+            </div>
+          </div>
+
+          <!-- ベキ -->
+          <div class="char-card" data-org="tent" data-id="beki" onclick="openModal('beki')" onclick="openModal('beki')">
+            <div class="char-badge tent-badge">テント</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar beki-avatar">
+                <span>ベキ</span>
+              </div>
+            </div>
+            <div class="char-name">ノゴーン・ベキ</div>
+            <div class="char-role">テントリーダー（S1終了）/ 乃木の父</div>
+            <div class="char-actor">役所 広司</div>
+            <div class="char-tags">
+              <span class="tag">元公安警察官</span>
+              <span class="tag">乃木の実父</span>
+              <span class="tag">乃木卓</span>
+            </div>
+          </div>
+
+          <!-- ノコル -->
+          <div class="char-card" data-org="tent" data-id="nokoru" onclick="openModal('nokoru')" onclick="openModal('nokoru')">
+            <div class="char-badge tent-badge">テント</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar nokoru-avatar">
+                <span>ノコル</span>
+              </div>
+            </div>
+            <div class="char-name">ノコル</div>
+            <div class="char-role">テントNo.2 / ムルーデル代表</div>
+            <div class="char-actor">二宮 和也</div>
+            <div class="char-tags">
+              <span class="tag">ベキの義子</span>
+              <span class="tag">乃木の義弟</span>
+              <span class="tag">S2主要</span>
+            </div>
+          </div>
+
+          <!-- 桜井 -->
+          <div class="char-card" data-org="beppan" data-id="sakurai" onclick="openModal('sakurai')" onclick="openModal('sakurai')">
+            <div class="char-badge beppan-badge">別班</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar sakurai-avatar">
+                <span>桜井</span>
+              </div>
+            </div>
+            <div class="char-name">桜井 里美</div>
+            <div class="char-role">別班 司令塔</div>
+            <div class="char-actor">キムラ 緑子</div>
+            <div class="char-tags">
+              <span class="tag">別班幹部</span>
+            </div>
+          </div>
+
+          <!-- 長野 -->
+          <div class="char-card" data-org="beppan" data-id="nagano" onclick="openModal('nagano')" onclick="openModal('nagano')">
+            <div class="char-badge beppan-badge">別班</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar nagano-avatar">
+                <span>長野</span>
+              </div>
+              <div class="org-dots">
+                <span class="dot beppan-dot" title="別班"></span>
+                <span class="dot warning-dot" title="疑惑あり"></span>
+              </div>
+            </div>
+            <div class="char-name">長野 利彦</div>
+            <div class="char-role">丸菱商事専務 / S2別班員</div>
+            <div class="char-actor">小日向 文世</div>
+            <div class="char-tags">
+              <span class="tag">S2から別班</span>
+              <span class="tag">黒幕疑惑</span>
+            </div>
+          </div>
+
+          <!-- 新庄 -->
+          <div class="char-card" data-org="kouan" data-id="shinjo" onclick="openModal('shinjo')" onclick="openModal('shinjo')">
+            <div class="char-badge kouan-badge">公安</div>
+            <div class="char-avatar-wrap">
+              <div class="char-avatar shinjo-avatar">
+                <span>新庄</span>
+              </div>
+              <div class="org-dots">
+                <span class="dot kouan-dot" title="公安"></span>
+                <span class="dot tent-dot" title="テントモニター"></span>
+              </div>
+            </div>
+            <div class="char-name">新庄 浩太郎</div>
+            <div class="char-role">公安部 / テントモニター（二重スパイ）</div>
+            <div class="char-actor">竜星 涼</div>
+            <div class="char-tags">
+              <span class="tag">二重スパイ</span>
+              <span class="tag">タイ逃亡</span>
+              <span class="tag">要注意</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Relationship Legend -->
+        <div class="relation-legend">
+          <h4>関係性の凡例</h4>
+          <div class="legend-items">
+            <div class="legend-item">
+              <div class="legend-line beppan-line"></div>
+              <span>別班</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-line tent-line"></div>
+              <span>テント</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-line kouan-line"></div>
+              <span>公安</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-line double-line"></div>
+              <span>二重所属/疑惑</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Relationship Detail Panel -->
+        <div class="relation-detail-panel" id="rel-detail-panel">
+          <div class="panel-header">
+            <span id="rel-panel-name">人物を選択</span>
+            <button class="panel-close" id="panel-close">✕</button>
+          </div>
+          <div class="panel-content" id="rel-panel-content">
+            <p class="panel-prompt">カードをクリックして人物の詳細な関係性を確認</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: X Analysis -->
+    <section id="page-analysis" class="page">
+      <div class="page-header">
+        <div class="page-tag">INTELLIGENCE</div>
+        <h2 class="page-title">X <span class="accent">考察分析</span></h2>
+        <p class="page-desc">X（旧Twitter）上のVIVANT関連投稿から導き出される今後の展開予測</p>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="analysis-stats">
+        <div class="stat-item">
+          <div class="stat-num" data-count="247392">0</div>
+          <div class="stat-label">#VIVANT 投稿数</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-count="89234">0</div>
+          <div class="stat-label">#VIVANT考察 投稿数</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-count="94">0</div>
+          <div class="stat-label">トレンド入り回数</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-count="76">0</div>
+          <div class="stat-label">考察的中率（S1）%</div>
+        </div>
+      </div>
+
+      <!-- Topic Heatmap -->
+      <div class="analysis-heatmap">
+        <h3 class="section-title">🔥 ホットトピック ランキング</h3>
+        <div class="topic-bars">
+          <div class="topic-bar-item">
+            <div class="topic-label">長野専務 黒幕説</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 94%">
+                <span class="topic-pct">94%</span>
+              </div>
+            </div>
+            <div class="topic-heat hot">🔥 HOT</div>
+          </div>
+          <div class="topic-bar-item">
+            <div class="topic-label">新庄 真の目的</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 87%">
+                <span class="topic-pct">87%</span>
+              </div>
+            </div>
+            <div class="topic-heat hot">🔥 HOT</div>
+          </div>
+          <div class="topic-bar-item">
+            <div class="topic-label">乃木×ノコル 兄弟共闘</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 82%">
+                <span class="topic-pct">82%</span>
+              </div>
+            </div>
+            <div class="topic-heat hot">🔥 HOT</div>
+          </div>
+          <div class="topic-bar-item">
+            <div class="topic-label">別人格「F」の正体</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 79%">
+                <span class="topic-pct">79%</span>
+              </div>
+            </div>
+            <div class="topic-heat warm">🌡 WARM</div>
+          </div>
+          <div class="topic-bar-item">
+            <div class="topic-label">AI「ハヤト」と乃木の関係</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 71%">
+                <span class="topic-pct">71%</span>
+              </div>
+            </div>
+            <div class="topic-heat warm">🌡 WARM</div>
+          </div>
+          <div class="topic-bar-item">
+            <div class="topic-label">野崎の隠された計画</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 65%">
+                <span class="topic-pct">65%</span>
+              </div>
+            </div>
+            <div class="topic-heat warm">🌡 WARM</div>
+          </div>
+          <div class="topic-bar-item">
+            <div class="topic-label">第三勢力（別班拉致犯）</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 58%">
+                <span class="topic-pct">58%</span>
+              </div>
+            </div>
+            <div class="topic-heat cool">❄ COOL</div>
+          </div>
+          <div class="topic-bar-item">
+            <div class="topic-label">ベキ生存説</div>
+            <div class="topic-bar-wrap">
+              <div class="topic-bar-fill" style="--pct: 43%">
+                <span class="topic-pct">43%</span>
+              </div>
+            </div>
+            <div class="topic-heat cool">❄ COOL</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prediction Cards -->
+      <div class="predictions-section">
+        <h3 class="section-title">🎯 今後の展開予測（X考察集計）</h3>
+        <div class="prediction-grid">
+
+          <div class="prediction-card high-conf">
+            <div class="conf-badge">信頼度 ◆◆◆◆◇</div>
+            <div class="pred-icon">🕵️</div>
+            <h4 class="pred-title">長野専務が黒幕として浮上</h4>
+            <p class="pred-body">
+              S2第12話で別班員であることが判明した長野専務。しかし、別班員でありながら別班員を拉致する犯行グループに接触している疑惑が浮上。表向きの別班員として乃木らを操る「二重の欺き」の可能性が高い。
+            </p>
+            <div class="pred-evidence">
+              <span class="evidence-tag">■ 別班員拉致の主導</span>
+              <span class="evidence-tag">■ 不審な独断行動</span>
+              <span class="evidence-tag">■ 小日向文世の演技の変化</span>
+            </div>
+            <div class="pred-prob">予測確率: <strong>87%</strong></div>
+          </div>
+
+          <div class="prediction-card high-conf">
+            <div class="conf-badge">信頼度 ◆◆◆◆◇</div>
+            <div class="pred-icon">⚔️</div>
+            <h4 class="pred-title">乃木×ノコル 共闘へ</h4>
+            <p class="pred-body">
+              ベキという共通の「父」を持つ二人。乃木がベキを撃ったことへのノコルの複雑な感情が描かれる中、共通の敵（第三勢力・黒幕）の登場により二人が共闘する展開が最も支持されている。
+            </p>
+            <div class="pred-evidence">
+              <span class="evidence-tag">■ ベキの意志の継承</span>
+              <span class="evidence-tag">■ 共通の脅威</span>
+              <span class="evidence-tag">■ 義兄弟の絆の描写</span>
+            </div>
+            <div class="pred-prob">予測確率: <strong>82%</strong></div>
+          </div>
+
+          <div class="prediction-card mid-conf">
+            <div class="conf-badge">信頼度 ◆◆◆◇◇</div>
+            <div class="pred-icon">🧬</div>
+            <h4 class="pred-title">別人格「F」の統合・覚醒</h4>
+            <p class="pred-body">
+              幼少期から存在するとされる乃木の別人格「F」。この「F」がAI「ハヤト」と何らかの形でリンクしているという考察が急増。クライマックスで「F」が完全に覚醒・統合する展開が予測される。
+            </p>
+            <div class="pred-evidence">
+              <span class="evidence-tag">■ Fの伏線</span>
+              <span class="evidence-tag">■ AIとの類似性</span>
+              <span class="evidence-tag">■ 感情の欠落</span>
+            </div>
+            <div class="pred-prob">予測確率: <strong>71%</strong></div>
+          </div>
+
+          <div class="prediction-card mid-conf">
+            <div class="conf-badge">信頼度 ◆◆◆◇◇</div>
+            <div class="pred-icon">🌐</div>
+            <h4 class="pred-title">新たな国際的陰謀の全容解明</h4>
+            <p class="pred-body">
+              新庄のタイ逃亡の背後に外国勢力（特定国の諜報機関）が関与しているという説が有力。別班員5人同時拉致という組織的犯行は単独では不可能で、国家レベルの関与を示唆している。
+            </p>
+            <div class="pred-evidence">
+              <span class="evidence-tag">■ 組織的拉致</span>
+              <span class="evidence-tag">■ タイへの逃亡</span>
+              <span class="evidence-tag">■ ハッカーの存在</span>
+            </div>
+            <div class="pred-prob">予測確率: <strong>68%</strong></div>
+          </div>
+
+          <div class="prediction-card low-conf">
+            <div class="conf-badge">信頼度 ◆◆◇◇◇</div>
+            <div class="pred-icon">👁️</div>
+            <h4 class="pred-title">野崎が「第三の別班」として独自行動</h4>
+            <p class="pred-body">
+              乃木を常に見守りながらも、独自の情報を持つ野崎。公安でも別班でもない「第三の立場」として動いており、最終局面で乃木とノコルを支援する隠れた黒幕側の正義の存在として覚醒するという予測がある。
+            </p>
+            <div class="pred-evidence">
+              <span class="evidence-tag">■ 不可解な情報力</span>
+              <span class="evidence-tag">■ 独断行動</span>
+            </div>
+            <div class="pred-prob">予測確率: <strong>52%</strong></div>
+          </div>
+
+          <div class="prediction-card low-conf">
+            <div class="conf-badge">信頼度 ◆◆◇◇◇</div>
+            <div class="pred-icon">💀</div>
+            <h4 class="pred-title">ベキ生存・再登場説</h4>
+            <p class="pred-body">
+              S1のラストで乃木に撃たれたベキだが、「死体が確認されていない」「役所広司のS2クレジット表記」などを根拠に生存説を唱えるファンが一定数いる。最終話での回想ないし生存形式での登場が予測される。
+            </p>
+            <div class="pred-evidence">
+              <span class="evidence-tag">■ 死体未確認</span>
+              <span class="evidence-tag">■ クレジット継続</span>
+            </div>
+            <div class="pred-prob">予測確率: <strong>43%</strong></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live Feed Simulation -->
+      <div class="live-feed-section">
+        <h3 class="section-title">
+          <span class="live-dot"></span> X リアルタイム考察フィード（シミュレーション）
+        </h3>
+        <div class="feed-container" id="feed-container">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box" id="modal-box">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div class="modal-content" id="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
