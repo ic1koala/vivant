@@ -1,3 +1,19 @@
+
+// ════════════════════════════════════════════
+//  MOBILE SAFE OPEN NEW TAB LINK HANDLER
+// ════════════════════════════════════════════
+document.addEventListener('click', function(e) {
+  const searchLink = e.target.closest('.card-name-link, .char-name-link, .modal-google-btn');
+  if (searchLink) {
+    e.stopPropagation();
+    const href = searchLink.getAttribute('href');
+    if (href) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  }
+}, true); // Use capture phase to intercept mobile taps cleanly
+
+
 // ============================================
 //  VIVANT App - Main JavaScript
 // ============================================
