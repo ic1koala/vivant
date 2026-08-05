@@ -453,6 +453,17 @@ body {
   gap: 24px;
 }
 
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
 .logo-vivant {
   font-family: var(--font-display);
   font-size: 28px;
@@ -470,6 +481,46 @@ body {
   text-transform: uppercase;
   margin-top: 4px;
   font-family: var(--font-mono);
+}
+
+/* ヘッダーロゴ横アクセスカウンターバッジ */
+.header-counter-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(200, 169, 110, 0.08);
+  border: 1px solid rgba(200, 169, 110, 0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: 'Rajdhani', monospace;
+  box-shadow: 0 0 12px rgba(200, 169, 110, 0.1);
+  backdrop-filter: blur(4px);
+  user-select: none;
+}
+
+.header-counter-item {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.h-counter-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+}
+
+.h-counter-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+
+.h-counter-divider {
+  font-size: 10px;
+  color: rgba(200, 169, 110, 0.4);
 }
 
 .main-nav {

@@ -30,6 +30,9 @@ async function trackAndShowCounts() {
   const cntWeekly = document.getElementById('cnt-weekly');
   const cntTotal  = document.getElementById('cnt-total');
 
+  const hCntToday = document.getElementById('header-cnt-today');
+  const hCntTotal = document.getElementById('header-cnt-total');
+
   const fetchOpt = { signal: AbortSignal.timeout(2000) };
 
   const hitToday  = fetch(`${COUNTER_API}/${COUNTER_NS}/${todayKey}/hit`, fetchOpt).then(r => r.json()).catch(() => null);
@@ -44,16 +47,21 @@ async function trackAndShowCounts() {
     const numWeek  = rWeek?.value  ?? rWeek?.count  ?? 1;
     const numTotal = rTotal?.value ?? rTotal?.count ?? 1;
 
-    animateCounter(cntDaily,  typeof numDay   === 'number' ? numDay   : null, numDay);
-    animateCounter(cntWeekly, typeof numWeek  === 'number' ? numWeek  : null, numWeek);
-    animateCounter(cntTotal,  typeof numTotal === 'number' ? numTotal : null, numTotal);
+    animateCounter(cntDaily,   typeof numDay   === 'number' ? numDay   : null, numDay);
+    animateCounter(cntWeekly,  typeof numWeek  === 'number' ? numWeek  : null, numWeek);
+    animateCounter(cntTotal,   typeof numTotal === 'number' ? numTotal : null, numTotal);
+
+    animateCounter(hCntToday,  typeof numDay   === 'number' ? numDay   : null, numDay);
+    animateCounter(hCntTotal,  typeof numTotal === 'number' ? numTotal : null, numTotal);
 
     if (statusEl) statusEl.textContent = `最終更新: ${new Date().toLocaleTimeString('ja-JP')}`;
   } catch {
-    if (cntDaily)  cntDaily.textContent  = '1';
-    if (cntWeekly) cntWeekly.textContent = '1';
-    if (cntTotal)  cntTotal.textContent  = '1';
-    if (statusEl)  statusEl.textContent  = 'アクセス集計完了';
+    if (cntDaily)   cntDaily.textContent   = '1';
+    if (cntWeekly)  cntWeekly.textContent  = '1';
+    if (cntTotal)   cntTotal.textContent   = '1';
+    if (hCntToday)  hCntToday.textContent  = '1';
+    if (hCntTotal)  hCntTotal.textContent  = '1';
+    if (statusEl)   statusEl.textContent   = 'アクセス集計完了';
   }
 }
 

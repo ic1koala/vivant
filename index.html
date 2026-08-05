@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Oswald:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
   <script>
@@ -141,8 +141,23 @@
   <header id="header">
     <div class="header-inner">
       <div class="logo-wrap">
-        <div class="logo-vivant">VIVANT</div>
-        <div class="logo-subtitle">情報分析システム</div>
+        <div class="logo-text-group">
+          <div class="logo-vivant">VIVANT</div>
+          <div class="logo-subtitle">情報分析システム</div>
+        </div>
+        
+        <!-- 左上ロゴ横アクセスカウンター -->
+        <div class="header-counter-badge" title="リアルタイムアクセス統計">
+          <div class="header-counter-item">
+            <span class="h-counter-label">TODAY</span>
+            <span class="h-counter-num" id="header-cnt-today">—</span>
+          </div>
+          <span class="h-counter-divider">/</span>
+          <div class="header-counter-item">
+            <span class="h-counter-label">TOTAL</span>
+            <span class="h-counter-num" id="header-cnt-total">—</span>
+          </div>
+        </div>
       </div>
       <nav class="main-nav">
         <button class="nav-btn active" data-page="org" id="nav-org">
@@ -1155,7 +1170,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>
 
