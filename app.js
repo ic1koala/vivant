@@ -943,3 +943,138 @@ document.addEventListener('click', (e) => {
     }
   });
 });
+
+// ════════════════════════════════════════════
+//  X考察分析 - 統計カウンターアニメーション
+// ════════════════════════════════════════════
+function animateStats() {
+  document.querySelectorAll('.stat-num[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count, 10);
+    if (isNaN(target)) return;
+    const duration = 1800;
+    const start = Date.now();
+    const startVal = 0;
+    function tick() {
+      const p = Math.min((Date.now() - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 4);
+      el.textContent = Math.floor(startVal + ease * (target - startVal)).toLocaleString('ja-JP');
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+
+  // トピックバーのアニメーション
+  document.querySelectorAll('.topic-bar-fill').forEach(bar => {
+    const pct = bar.style.getPropertyValue('--pct') || bar.style['--pct'];
+    bar.style.width = '0%';
+    setTimeout(() => {
+      bar.style.transition = 'width 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
+      bar.style.width = pct;
+    }, 100);
+  });
+}
+
+// ════════════════════════════════════════════
+//  X考察分析 - リアルタイム考察フィード
+// ════════════════════════════════════════════
+const FEED_POSTS = [
+  { user: '@vivant_fan01', time: '今', tag: '#VIVANT', text: '長野専務やっぱ黒幕な気がしてきた…あの表情が気になりすぎる🔥 #VIVANT考察' },
+  { user: '@tent_watcher', time: '2分前', tag: '#テント', text: 'モニターのランク1が7人って、残り6人誰なんだろ…まじでゾッとする展開になりそう😱 #VIVANT' },
+  { user: '@nogi_deep', time: '5分前', tag: '#乃木憂助', text: '乃木の別人格Fってハヤト（AI）と繋がってると思うんだよな。あの目の感じが一緒。 #VIVANT考察' },
+  { user: '@beki_truth', time: '8分前', tag: '#ベキ', text: 'ベキが乃木卓だと知った時の衝撃は今でも忘れられない。S2でもちゃんと関わってきてほしい #VIVANT' },
+  { user: '@kouan_analysis', time: '11分前', tag: '#公安', text: '野崎理事官が実は一番の情報収集力あるんじゃないかと思えてきた。あの独断行動が全部伏線な気がする #VIVANT' },
+  { user: '@shinjo_spy', time: '15分前', tag: '#新庄', text: '新庄がタイにいるのはもう確定でしょ。問題は誰が匿ってるかだよね…ランク1モニターか？ #VIVANT考察' },
+  { user: '@nokoru_s2', time: '18分前', tag: '#ノコル', text: '乃木×ノコルの共闘、絶対あると思う。義兄弟が手を組むシーン泣ける自信ある😭 #VIVANT' },
+  { user: '@marubishi_spy', time: '22分前', tag: '#丸菱', text: '太田梨花ちゃんがS2でまた活躍してくれるの本当に嬉しい。blue@walkerの本領発揮 #VIVANT' },
+  { user: '@beppan_trace', time: '25分前', tag: '#別班', text: '別班員5人同時拉致って絶対内部に協力者いるじゃん。新庄が繋いだランク1モニターが怪しすぎ #VIVANT考察' },
+  { user: '@yuzuki_fan', time: '29分前', tag: '#柚木薫', text: '柚木先生がいつも乃木の心の支えになってるの、この世界で唯一の温かさって感じ🌸 #VIVANT' },
+  { user: '@ai_hayato', time: '33分前', tag: '#ハヤト', text: 'AIのハヤトって誰が開発したの？テントの技術力でそれ作れるの？謎すぎて考察が止まらない #VIVANT' },
+  { user: '@beki_child', time: '38分前', tag: '#ベキ考察', text: '乃木がベキを撃った時のあの静けさ…Fの人格で撃ったんじゃないかって考察が一番しっくりくる #VIVANT' },
+  { user: '@nozaki_fan', time: '42分前', tag: '#野崎守', text: '野崎理事官が乃木を信じ続けてるのが本当に沁みる。あれが本当の信頼関係 #VIVANT' },
+  { user: '@tent_rank1', time: '47分前', tag: '#モニター', text: 'ランク1が世界に7人っていう設定、実は日本以外にも潜入してる可能性がある？世界規模の話かも #VIVANT考察' },
+  { user: '@kurosu_ikemen', time: '52分前', tag: '#黒須', text: '黒須くんが乃木先輩を信じて撃たれる役やった時、あれが一番ぐっときたシーン #VIVANT' },
+];
+
+let feedIndex = 0;
+let feedTimer = null;
+
+function createFeedItem(post, isNew = false) {
+  const div = document.createElement('div');
+  div.className = 'feed-item' + (isNew ? ' feed-item--new' : '');
+  div.innerHTML = `
+    <div class="feed-header">
+      <span class="feed-user">${post.user}</span>
+      <span class="feed-tag">${post.tag}</span>
+      <span class="feed-time">${post.time}</span>
+    </div>
+    <div class="feed-text">${post.text}</div>
+    <div class="feed-actions">
+      <span class="feed-action">♥ ${Math.floor(Math.random() * 900 + 50)}</span>
+      <span class="feed-action">🔁 ${Math.floor(Math.random() * 300 + 10)}</span>
+      <span class="feed-action">💬 ${Math.floor(Math.random() * 80 + 5)}</span>
+    </div>
+  `;
+  return div;
+}
+
+function initLiveFeed() {
+  const container = document.getElementById('feed-container');
+  if (!container) return;
+
+  // 初期フィード（最初の5件）を表示
+  container.innerHTML = '';
+  const initial = FEED_POSTS.slice(0, 5);
+  initial.forEach(post => {
+    container.appendChild(createFeedItem(post));
+  });
+  feedIndex = 5;
+
+  // タイマーをクリア（重複防止）
+  if (feedTimer) clearInterval(feedTimer);
+
+  // 3〜6秒ごとに新しい投稿を先頭に追加
+  feedTimer = setInterval(() => {
+    const container = document.getElementById('feed-container');
+    if (!container) { clearInterval(feedTimer); return; }
+
+    const post = { ...FEED_POSTS[feedIndex % FEED_POSTS.length], time: '今' };
+    feedIndex++;
+
+    const newItem = createFeedItem(post, true);
+    container.insertBefore(newItem, container.firstChild);
+
+    // 8件を超えたら古いものを削除
+    const items = container.querySelectorAll('.feed-item');
+    if (items.length > 8) {
+      items[items.length - 1].remove();
+    }
+
+    // アニメーション後にnewクラスを除去
+    setTimeout(() => newItem.classList.remove('feed-item--new'), 600);
+  }, Math.random() * 3000 + 3000);
+}
+
+// ════════════════════════════════════════════
+//  X考察ページ初期化（ページ切替時 / DOMロード時）
+// ════════════════════════════════════════════
+function initAnalysisPage() {
+  animateStats();
+  initLiveFeed();
+}
+
+// ナビゲーション切替時にX考察ページを初期化
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav-btn[data-page="analysis"]');
+  if (btn) {
+    setTimeout(initAnalysisPage, 150);
+  }
+});
+
+// DOMロード時にX考察ページが最初から表示されている場合にも初期化
+document.addEventListener('DOMContentLoaded', () => {
+  const analysisPage = document.getElementById('page-analysis');
+  if (analysisPage && analysisPage.classList.contains('active')) {
+    setTimeout(initAnalysisPage, 200);
+  }
+});
+
