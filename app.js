@@ -767,7 +767,7 @@ const characterMaster = {
     position: '【野崎の最強相棒】音声翻訳アプリで会話する巨体にして驚異的な身体能力を持つ公安協力者。',
     profile: '野崎理事官の忠実で超有能な協力者。スマートフォンの音声翻訳アプリ（CV：林原めぐみ）を通じて会話する。格闘・運転・追跡・潜入・料理などあらゆるスキルに秀でる愛されキャラクター。',
     storyline: '【シーズン1】バルカ脱出劇で野崎・乃木らを陰から絶大にサポート。爆走ドライブや追跡回避で幾度も危機を救う。\n【シーズン2】野崎の右腕として公安の日本国内・海外捜査にフル稼働。',
-    relations: ['野崎守（直属の上司・相棒）', '乃木憂助（仲間・協力者）', '柚木薫（仲間）'],
+    relations: ['野崎守（直属の上司・相棒）', 'ジャミーン（保護・サポート）', '乃木憂助（仲間・協力者）', '柚木薫（仲間）'],
     googleQuery: 'VIVANT ドラム 富栄ドラム'
   }
 };
@@ -1131,20 +1131,23 @@ const MINDMAP_NODES = [
   { id: 'hub_tent', label: 'テ ン ト (TENT)', type: 'hub', org: 'tent', x: 1420, y: 1020 },
   { id: 'hub_kouan', label: '公 安 警 察', type: 'hub', org: 'kouan', x: 520, y: 380 },
   { id: 'hub_marubishi', label: '丸 菱 商 事', type: 'hub', org: 'marubishi', x: 480, y: 1020 },
-  { id: 'hub_other', label: '医療・バルカ・AI', type: 'hub', org: 'other', x: 950, y: 1220 },
+  { id: 'hub_medical', label: '医 療 (WHO)', type: 'hub', org: 'medical', x: 1180, y: 1120 },
+  { id: 'hub_balka', label: 'バ ル カ', type: 'hub', org: 'balka', x: 880, y: 1120 },
 
-  // 3. キャラクターノード — 別班
+  // 3. キャラクターノード — 別班 (ハヤト含む)
   { id: 'kurosu', charId: 'kurosu', label: '黒須 駿', role: '別班工作員 / 相棒', org: 'beppan', type: 'char', x: 1680, y: 300, relText: '信頼の相棒' },
   { id: 'sakurai', charId: 'sakurai', label: '桜井 里美', role: '別班 司令', org: 'beppan', type: 'char', x: 1650, y: 480, relText: '直属の上司' },
   { id: 'nagano', charId: 'nagano', label: '長野 利彦', role: '専務 / S2別班員', org: 'beppan', type: 'char', x: 1400, y: 180, relText: 'S2覚醒 / 潜入' },
+  { id: 'hayato', charId: 'hayato', label: 'ハヤト（AI）', role: '別班暗号AIシステム', org: 'beppan', type: 'char', x: 1680, y: 160, relText: '高度自律AI' },
 
   // 4. キャラクターノード — テント
   { id: 'beki', charId: 'beki', label: 'ノゴーン・ベキ', role: '創始者 (乃木卓)', org: 'tent', type: 'char', x: 1720, y: 880, relText: '実の父親' },
   { id: 'nokoru', charId: 'nokoru', label: 'ノコル', role: 'テントNo.2 / ムルーデル', org: 'tent', type: 'char', x: 1700, y: 1140, relText: '義理の兄弟' },
   { id: 'ali', charId: 'ali', label: 'アリ', role: '元幹部 / バルカ銀行', org: 'tent', type: 'char', x: 1380, y: 1240, relText: '資金ルート' },
 
-  // 5. キャラクターノード — 公安
-  { id: 'nozaki', charId: 'nozaki', label: '野崎 守', role: '公安部 理事官', org: 'kouan', type: 'char', x: 220, y: 300, relText: '対峙・ライバル' },
+  // 5. キャラクターノード — 公安 (ドラム含む)
+  { id: 'nozaki', charId: 'nozaki', label: '野崎 守', role: '公安部 理事官', org: 'kouan', type: 'char', x: 220, y: 320, relText: '対峙・ライバル' },
+  { id: 'doram', charId: 'doram', label: 'ドラム', role: '野崎の有能な右腕', org: 'kouan', type: 'char', x: 180, y: 180, relText: '最強のバディ' },
   { id: 'shinjo', charId: 'shinjo', label: '新庄 浩太郎', role: '公安 / モニター', org: 'kouan', type: 'char', x: 220, y: 480, relText: '二重スパイ' },
   { id: 'toujou', charId: 'toujou', label: '東条 実', role: 'サイバー対策', org: 'kouan', type: 'char', x: 520, y: 180, relText: 'データ解析' },
   { id: 'suzuki', charId: 'suzuki', label: '鈴木 祥太', role: 'サイバー捜査官', org: 'kouan', type: 'char', x: 740, y: 220, relText: 'サイバー追跡' },
@@ -1156,11 +1159,9 @@ const MINDMAP_NODES = [
   { id: 'yamamoto', charId: 'yamamoto', label: '山本 巧', role: '業務部 / モニター', org: 'marubishi', type: 'char', x: 260, y: 1200, relText: '誤送金工作' },
   { id: 'kawai', charId: 'kawai', label: '河合 幸二', role: 'エネルギー部 部長', org: 'marubishi', type: 'char', x: 680, y: 1040, relText: '直属の上司' },
 
-  // 7. キャラクターノード — 医療・バルカ・AI
-  { id: 'yuzuki', charId: 'yuzuki', label: '柚木 薫', role: 'WHO 医師', org: 'other', type: 'char', x: 1180, y: 1320, relText: '最愛の理解者' },
-  { id: 'jameen', charId: 'jameen', label: 'ジャミーン', role: 'バルカの少女', org: 'other', type: 'char', x: 1420, y: 1320, relText: '救った少女' },
-  { id: 'doram', charId: 'doram', label: 'ドラム', role: '野崎の助手・協力者', org: 'other', type: 'char', x: 950, y: 1350, relText: '最強のバディ' },
-  { id: 'hayato', charId: 'hayato', label: 'ハヤト（AI）', role: '高度自律型AI', org: 'other', type: 'char', x: 720, y: 1320, relText: '謎の知能' }
+  // 7. キャラクターノード — 医療・バルカ
+  { id: 'yuzuki', charId: 'yuzuki', label: '柚木 薫', role: 'WHO 医師', org: 'medical', type: 'char', x: 1180, y: 1320, relText: '最愛の理解者' },
+  { id: 'jameen', charId: 'jameen', label: 'ジャミーン', role: 'バルカの少女', org: 'balka', type: 'char', x: 880, y: 1320, relText: '救った少女' }
 ];
 
 // ノード間の関係線（ブランチ＆クロスライン）
@@ -1170,18 +1171,21 @@ const MINDMAP_CONNECTIONS = [
   { from: 'center_nogi', to: 'hub_tent', org: 'tent', label: '潜入・血縁関係' },
   { from: 'center_nogi', to: 'hub_kouan', org: 'kouan', label: '捜査・協力関係' },
   { from: 'center_nogi', to: 'hub_marubishi', org: 'marubishi', label: '表の顔 (エネルギー2課)' },
-  { from: 'center_nogi', to: 'hub_other', org: 'other', label: '絆・守るべき存在' },
+  { from: 'center_nogi', to: 'hub_medical', org: 'medical', label: '最愛の恋人 🩺' },
+  { from: 'center_nogi', to: 'hub_balka', org: 'balka', label: '命を救った少女 🌸' },
 
   // ハブ ──＞ 各キャラ
   { from: 'hub_beppan', to: 'kurosu', org: 'beppan' },
   { from: 'hub_beppan', to: 'sakurai', org: 'beppan' },
   { from: 'hub_beppan', to: 'nagano', org: 'beppan' },
+  { from: 'hub_beppan', to: 'hayato', org: 'beppan' },
 
   { from: 'hub_tent', to: 'beki', org: 'tent' },
   { from: 'hub_tent', to: 'nokoru', org: 'tent' },
   { from: 'hub_tent', to: 'ali', org: 'tent' },
 
   { from: 'hub_kouan', to: 'nozaki', org: 'kouan' },
+  { from: 'hub_kouan', to: 'doram', org: 'kouan' },
   { from: 'hub_kouan', to: 'shinjo', org: 'kouan' },
   { from: 'hub_kouan', to: 'toujou', org: 'kouan' },
   { from: 'hub_kouan', to: 'suzuki', org: 'kouan' },
@@ -1192,21 +1196,22 @@ const MINDMAP_CONNECTIONS = [
   { from: 'hub_marubishi', to: 'yamamoto', org: 'marubishi' },
   { from: 'hub_marubishi', to: 'kawai', org: 'marubishi' },
 
-  { from: 'hub_other', to: 'yuzuki', org: 'other' },
-  { from: 'hub_other', to: 'jameen', org: 'other' },
-  { from: 'hub_other', to: 'doram', org: 'other' },
-  { from: 'hub_other', to: 'hayato', org: 'other' },
+  { from: 'hub_medical', to: 'yuzuki', org: 'medical' },
+  { from: 'hub_balka', to: 'jameen', org: 'balka' },
 
   // 重要キャラクター間の直接クロス関係線
   { from: 'center_nogi', to: 'beki', org: 'tent', label: '実父 ⚔️' },
   { from: 'center_nogi', to: 'nokoru', org: 'tent', label: '義弟' },
   { from: 'center_nogi', to: 'nozaki', org: 'kouan', label: '信頼とライバル' },
-  { from: 'center_nogi', to: 'yuzuki', org: 'other', label: '恋人 ❤️' },
+  { from: 'center_nogi', to: 'yuzuki', org: 'medical', label: '恋人 ❤️' },
   { from: 'center_nogi', to: 'kurosu', org: 'beppan', label: '相棒 🤝' },
-  { from: 'yuzuki', to: 'jameen', org: 'other', label: '主治医・守る存在 🩺' },
-  { from: 'center_nogi', to: 'jameen', org: 'other', label: '手術費支援 💖' },
+  { from: 'yuzuki', to: 'jameen', org: 'medical', label: '主治医・守る存在 🩺' },
+  { from: 'center_nogi', to: 'jameen', org: 'balka', label: '手術費支援 💖' },
   { from: 'nozaki', to: 'doram', org: 'kouan', label: '最強のバディ 🤝' },
-  { from: 'center_nogi', to: 'doram', org: 'other', label: '頼れる仲間 🚗' },
+  { from: 'doram', to: 'jameen', org: 'kouan', label: '保護・サポート 🛡️' },
+  { from: 'center_nogi', to: 'doram', org: 'kouan', label: '頼れる仲間 🚗' },
+  { from: 'hayato', to: 'toujou', org: 'beppan', label: '裏暗号解析 💻' },
+  { from: 'center_nogi', to: 'hayato', org: 'beppan', label: '謎のAIリンク 🤖' },
   { from: 'nagano', to: 'ota', org: 'marubishi', label: '過去の愛人' },
   { from: 'shinjo', to: 'hub_tent', org: 'tent', label: '二重スパイ 🕵️' },
   { from: 'yamamoto', to: 'ota', org: 'marubishi', label: '脅迫関係' }

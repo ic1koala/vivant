@@ -2838,6 +2838,8 @@ body {
 .mm-path.tent      { stroke: #e74c3c; }
 .mm-path.kouan     { stroke: #2ecc71; }
 .mm-path.marubishi { stroke: #f39c12; }
+.mm-path.medical   { stroke: #eb96b4; }
+.mm-path.balka     { stroke: #e67e22; }
 .mm-path.other     { stroke: #9b59b6; }
 .mm-path.center    { stroke: var(--amber); stroke-width: 2.5px; }
 
@@ -2994,6 +2996,18 @@ body {
   color: #ffe08e;
   box-shadow: 0 0 20px rgba(243, 156, 18, 0.4);
 }
+.mm-node-hub.medical {
+  background: rgba(70, 30, 50, 0.9);
+  border: 2px solid #eb96b4;
+  color: #ffc2d6;
+  box-shadow: 0 0 20px rgba(235, 150, 180, 0.4);
+}
+.mm-node-hub.balka {
+  background: rgba(70, 45, 20, 0.9);
+  border: 2px solid #e67e22;
+  color: #ffca99;
+  box-shadow: 0 0 20px rgba(230, 126, 34, 0.4);
+}
 .mm-node-hub.other {
   background: rgba(50, 20, 65, 0.9);
   border: 2px solid #9b59b6;
@@ -3020,6 +3034,8 @@ body {
 .mm-node-char.tent   { border-left: 4px solid #e74c3c; }
 .mm-node-char.kouan  { border-left: 4px solid #2ecc71; }
 .mm-node-char.marubishi { border-left: 4px solid #f39c12; }
+.mm-node-char.medical { border-left: 4px solid #eb96b4; }
+.mm-node-char.balka   { border-left: 4px solid #e67e22; }
 .mm-node-char.other  { border-left: 4px solid #9b59b6; }
 
 .mm-node-char:hover {
@@ -3047,6 +3063,8 @@ body {
 .mm-node-char.tent .mm-char-avatar   { border-color: #e74c3c; background: rgba(192, 57, 43, 0.2); }
 .mm-node-char.kouan .mm-char-avatar  { border-color: #2ecc71; background: rgba(39, 174, 96, 0.2); }
 .mm-node-char.marubishi .mm-char-avatar { border-color: #f39c12; background: rgba(243, 156, 18, 0.2); }
+.mm-node-char.medical .mm-char-avatar { border-color: #eb96b4; background: rgba(235, 150, 180, 0.2); }
+.mm-node-char.balka .mm-char-avatar   { border-color: #e67e22; background: rgba(230, 126, 34, 0.2); }
 .mm-node-char.other .mm-char-avatar { border-color: #9b59b6; background: rgba(155, 89, 182, 0.2); }
 
 .mm-char-info {
@@ -3093,7 +3111,10 @@ body {
 .legend-dot.dot-tent   { background: #e74c3c; box-shadow: 0 0 8px #e74c3c; }
 .legend-dot.dot-kouan  { background: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
 .legend-dot.dot-marubishi { background: #f39c12; box-shadow: 0 0 8px #f39c12; }
+.legend-dot.dot-medical { background: #eb96b4; box-shadow: 0 0 8px #eb96b4; }
+.legend-dot.dot-balka   { background: #e67e22; box-shadow: 0 0 8px #e67e22; }
 .legend-dot.dot-other  { background: #9b59b6; box-shadow: 0 0 8px #9b59b6; }
+
 
 
 
