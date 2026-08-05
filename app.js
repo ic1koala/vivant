@@ -1,17 +1,6 @@
 
 // ════════════════════════════════════════════
-//  MOBILE SAFE OPEN NEW TAB LINK HANDLER
-// ════════════════════════════════════════════
-document.addEventListener('click', function(e) {
-  const searchLink = e.target.closest('.card-name-link, .char-name-link, .modal-google-btn');
-  if (searchLink) {
-    e.stopPropagation();
-    const href = searchLink.getAttribute('href');
-    if (href) {
-      window.open(href, '_blank', 'noopener,noreferrer');
-    }
-  }
-}, true); // Use capture phase to intercept mobile taps cleanly
+ // Use capture phase to intercept mobile taps cleanly
 
 
 // ============================================
@@ -758,7 +747,13 @@ const characterMaster = {
 //  MODAL SYSTEM
 // ════════════════════════════════════════════
 window.openModal = openModal;
-function openModal(memberId) {
+function openModal(memberId, event) {
+  if (event) {
+    if (event.target && event.target.closest('a')) {
+      return; // Do not open modal if user tapped an <a> link (Google search)
+    }
+  }
+
   const data = characterMaster[memberId];
   if (!data) {
     console.warn('No character data for ID:', memberId);
