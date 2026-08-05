@@ -2488,3 +2488,125 @@ body {
   50%       { opacity: 0.4; transform: scale(0.7); }
 }
 
+/* ═══ X 公式埋め込みフィード ═══ */
+.x-embed-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+}
+
+.x-tweet-wrapper {
+  max-width: 100%;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* twitterウィジェットのiframeを横幅いっぱいに */
+.x-tweet-wrapper iframe {
+  border-radius: 8px !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* ローディング表示 */
+.x-feed-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-family: 'Rajdhani', monospace;
+  padding: 24px 0;
+}
+
+.x-feed-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(200, 169, 110, 0.3);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: xSpinner 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes xSpinner {
+  to { transform: rotate(360deg); }
+}
+
+/* Xで続きを見るリンク */
+.x-feed-footer {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.x-search-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: rgba(200, 169, 110, 0.08);
+  border: 1px solid rgba(200, 169, 110, 0.3);
+  border-radius: 6px;
+  color: var(--amber);
+  font-size: 13px;
+  font-family: 'Rajdhani', monospace;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.x-search-link:hover {
+  background: rgba(200, 169, 110, 0.16);
+  border-color: var(--sand-light);
+  color: var(--sand-light);
+}
+
+/* フォールバックカード（オフライン時） */
+.x-fallback-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 24px;
+  background: rgba(200, 169, 110, 0.04);
+  border: 1px dashed rgba(200, 169, 110, 0.25);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.x-fallback-icon {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--amber);
+  opacity: 0.6;
+}
+
+.x-fallback-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.x-fallback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--amber);
+  border-radius: 6px;
+  color: var(--bg-dark);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Rajdhani', monospace;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s ease;
+}
+
+.x-fallback-btn:hover {
+  opacity: 0.85;
+}
+
+

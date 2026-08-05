@@ -975,83 +975,109 @@ function animateStats() {
 }
 
 // ════════════════════════════════════════════
-//  X考察分析 - リアルタイム考察フィード
+//  X考察分析 - リアルX投稿埋め込みフィード
 // ════════════════════════════════════════════
-const FEED_POSTS = [
-  { user: '@vivant_fan01', time: '今', tag: '#VIVANT', text: '長野専務やっぱ黒幕な気がしてきた…あの表情が気になりすぎる🔥 #VIVANT考察' },
-  { user: '@tent_watcher', time: '2分前', tag: '#テント', text: 'モニターのランク1が7人って、残り6人誰なんだろ…まじでゾッとする展開になりそう😱 #VIVANT' },
-  { user: '@nogi_deep', time: '5分前', tag: '#乃木憂助', text: '乃木の別人格Fってハヤト（AI）と繋がってると思うんだよな。あの目の感じが一緒。 #VIVANT考察' },
-  { user: '@beki_truth', time: '8分前', tag: '#ベキ', text: 'ベキが乃木卓だと知った時の衝撃は今でも忘れられない。S2でもちゃんと関わってきてほしい #VIVANT' },
-  { user: '@kouan_analysis', time: '11分前', tag: '#公安', text: '野崎理事官が実は一番の情報収集力あるんじゃないかと思えてきた。あの独断行動が全部伏線な気がする #VIVANT' },
-  { user: '@shinjo_spy', time: '15分前', tag: '#新庄', text: '新庄がタイにいるのはもう確定でしょ。問題は誰が匿ってるかだよね…ランク1モニターか？ #VIVANT考察' },
-  { user: '@nokoru_s2', time: '18分前', tag: '#ノコル', text: '乃木×ノコルの共闘、絶対あると思う。義兄弟が手を組むシーン泣ける自信ある😭 #VIVANT' },
-  { user: '@marubishi_spy', time: '22分前', tag: '#丸菱', text: '太田梨花ちゃんがS2でまた活躍してくれるの本当に嬉しい。blue@walkerの本領発揮 #VIVANT' },
-  { user: '@beppan_trace', time: '25分前', tag: '#別班', text: '別班員5人同時拉致って絶対内部に協力者いるじゃん。新庄が繋いだランク1モニターが怪しすぎ #VIVANT考察' },
-  { user: '@yuzuki_fan', time: '29分前', tag: '#柚木薫', text: '柚木先生がいつも乃木の心の支えになってるの、この世界で唯一の温かさって感じ🌸 #VIVANT' },
-  { user: '@ai_hayato', time: '33分前', tag: '#ハヤト', text: 'AIのハヤトって誰が開発したの？テントの技術力でそれ作れるの？謎すぎて考察が止まらない #VIVANT' },
-  { user: '@beki_child', time: '38分前', tag: '#ベキ考察', text: '乃木がベキを撃った時のあの静けさ…Fの人格で撃ったんじゃないかって考察が一番しっくりくる #VIVANT' },
-  { user: '@nozaki_fan', time: '42分前', tag: '#野崎守', text: '野崎理事官が乃木を信じ続けてるのが本当に沁みる。あれが本当の信頼関係 #VIVANT' },
-  { user: '@tent_rank1', time: '47分前', tag: '#モニター', text: 'ランク1が世界に7人っていう設定、実は日本以外にも潜入してる可能性がある？世界規模の話かも #VIVANT考察' },
-  { user: '@kurosu_ikemen', time: '52分前', tag: '#黒須', text: '黒須くんが乃木先輩を信じて撃たれる役やった時、あれが一番ぐっときたシーン #VIVANT' },
+
+// 実際の #VIVANT考察 ツイートID一覧（X検索で取得した実投稿）
+const REAL_TWEET_IDS = [
+  '2084981990089199978',  // sankaku.ataru - ベキの嫁・乃木明美が昏睡状態考察
+  '2084947329090732260',  // こんとれいる@輝 - 新庄との対峙考察
+  '2084344811625328718',  // まゆスパ - VIVANT考察投稿
+  '2084202398759976960',  // VIVANT考察投稿
+  '2083690250724102144',  // VIVANT考察投稿
+  '2084064514285506560',  // VIVANT考察投稿
 ];
 
-let feedIndex = 0;
-let feedTimer = null;
+let xEmbedLoaded = false;
 
-function createFeedItem(post, isNew = false) {
-  const div = document.createElement('div');
-  div.className = 'feed-item' + (isNew ? ' feed-item--new' : '');
-  div.innerHTML = `
-    <div class="feed-header">
-      <span class="feed-user">${post.user}</span>
-      <span class="feed-tag">${post.tag}</span>
-      <span class="feed-time">${post.time}</span>
-    </div>
-    <div class="feed-text">${post.text}</div>
-    <div class="feed-actions">
-      <span class="feed-action">♥ ${Math.floor(Math.random() * 900 + 50)}</span>
-      <span class="feed-action">🔁 ${Math.floor(Math.random() * 300 + 10)}</span>
-      <span class="feed-action">💬 ${Math.floor(Math.random() * 80 + 5)}</span>
-    </div>
-  `;
-  return div;
+// X widgets.js を動的ロード
+function loadXWidgets() {
+  return new Promise((resolve) => {
+    if (window.twttr && window.twttr.widgets) {
+      resolve(window.twttr);
+      return;
+    }
+    window.twttr = (function(d, s, id) {
+      const fjs = d.getElementsByTagName(s)[0];
+      const t = window.twttr || {};
+      if (d.getElementById(id)) { resolve(t); return t; }
+      const js = d.createElement(s);
+      js.id = id;
+      js.src = 'https://platform.twitter.com/widgets.js';
+      js.onload = () => {
+        window.twttr.ready(() => resolve(window.twttr));
+      };
+      fjs.parentNode.insertBefore(js, fjs);
+      return t;
+    }(document, 'script', 'twitter-wjs'));
+  });
 }
 
-function initLiveFeed() {
+async function initLiveFeed() {
   const container = document.getElementById('feed-container');
   if (!container) return;
 
-  // 初期フィード（最初の5件）を表示
-  container.innerHTML = '';
-  const initial = FEED_POSTS.slice(0, 5);
-  initial.forEach(post => {
-    container.appendChild(createFeedItem(post));
-  });
-  feedIndex = 5;
+  const loading = document.getElementById('x-feed-loading');
 
-  // タイマーをクリア（重複防止）
-  if (feedTimer) clearInterval(feedTimer);
+  try {
+    const twttr = await loadXWidgets();
 
-  // 3〜6秒ごとに新しい投稿を先頭に追加
-  feedTimer = setInterval(() => {
-    const container = document.getElementById('feed-container');
-    if (!container) { clearInterval(feedTimer); return; }
+    if (loading) loading.remove();
 
-    const post = { ...FEED_POSTS[feedIndex % FEED_POSTS.length], time: '今' };
-    feedIndex++;
+    // 各ツイートを順番に埋め込む
+    let loadedCount = 0;
+    for (const tweetId of REAL_TWEET_IDS) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'x-tweet-wrapper';
+      wrapper.style.opacity = '0';
+      wrapper.style.transform = 'translateY(10px)';
+      container.appendChild(wrapper);
 
-    const newItem = createFeedItem(post, true);
-    container.insertBefore(newItem, container.firstChild);
-
-    // 8件を超えたら古いものを削除
-    const items = container.querySelectorAll('.feed-item');
-    if (items.length > 8) {
-      items[items.length - 1].remove();
+      try {
+        await twttr.widgets.createTweet(tweetId, wrapper, {
+          theme: 'dark',
+          lang: 'ja',
+          align: 'center',
+          dnt: true,
+          conversation: 'none',
+        });
+        // フェードイン
+        setTimeout(() => {
+          wrapper.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+          wrapper.style.opacity = '1';
+          wrapper.style.transform = 'translateY(0)';
+        }, loadedCount * 100);
+        loadedCount++;
+      } catch (e) {
+        // 該当ツイートが削除・非公開の場合はスキップ
+        wrapper.remove();
+      }
     }
 
-    // アニメーション後にnewクラスを除去
-    setTimeout(() => newItem.classList.remove('feed-item--new'), 600);
-  }, Math.random() * 3000 + 3000);
+    if (loadedCount === 0) {
+      showXFeedFallback(container);
+    }
+
+  } catch (err) {
+    if (loading) loading.remove();
+    showXFeedFallback(container);
+  }
+}
+
+// X widgets.js が読み込めない場合のフォールバック（Xへのリンクカード）
+function showXFeedFallback(container) {
+  container.innerHTML = `
+    <div class="x-fallback-card">
+      <div class="x-fallback-icon">𝕏</div>
+      <div class="x-fallback-text">
+        X（旧Twitter）の投稿を表示するには<br>ネットワーク接続が必要です。
+      </div>
+      <a href="https://x.com/search?q=%23VIVANT%E8%80%83%E5%AF%9F&src=typed_query&f=live"
+         target="_blank" rel="noopener" class="x-fallback-btn">
+        𝕏 #VIVANT考察 をXで見る ↗
+      </a>
+    </div>
+  `;
 }
 
 // ════════════════════════════════════════════
@@ -1059,7 +1085,10 @@ function initLiveFeed() {
 // ════════════════════════════════════════════
 function initAnalysisPage() {
   animateStats();
-  initLiveFeed();
+  if (!xEmbedLoaded) {
+    xEmbedLoaded = true;
+    initLiveFeed();
+  }
 }
 
 // ナビゲーション切替時にX考察ページを初期化
@@ -1077,4 +1106,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAnalysisPage, 200);
   }
 });
+
 
