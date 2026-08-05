@@ -1081,30 +1081,438 @@ function showXFeedFallback(container) {
 }
 
 // ════════════════════════════════════════════
-//  X考察ページ初期化（ページ切替時 / DOMロード時）
+//  MINDMAP RELATIONS ENGINE (マインドマップ相関図)
 // ════════════════════════════════════════════
-function initAnalysisPage() {
-  animateStats();
-  if (!xEmbedLoaded) {
-    xEmbedLoaded = true;
-    initLiveFeed();
+
+const MINDMAP_CONFIG = {
+  width: 1900,
+  height: 1400,
+  centerX: 950,
+  centerY: 700
+};
+
+// マインドマップのノード配置データ
+const MINDMAP_NODES = [
+  // 1. 中央ハブ (核)
+  { id: 'center_nogi', charId: 'nogi', label: '乃木 憂助', role: '主人公 / 別班 / ベキ実子', type: 'center', org: 'beppan', x: 950, y: 700 },
+
+  // 2. 勢力ハブノード
+  { id: 'hub_beppan', label: '別 班 (BEPPAN)', type: 'hub', org: 'beppan', x: 1380, y: 400 },
+  { id: 'hub_tent', label: 'テ ン ト (TENT)', type: 'hub', org: 'tent', x: 1420, y: 1020 },
+  { id: 'hub_kouan', label: '公 安 警 察', type: 'hub', org: 'kouan', x: 520, y: 380 },
+  { id: 'hub_marubishi', label: '丸 菱 商 事', type: 'hub', org: 'marubishi', x: 480, y: 1020 },
+  { id: 'hub_other', label: '医療・バルカ・AI', type: 'hub', org: 'other', x: 950, y: 1220 },
+
+  // 3. キャラクターノード — 別班
+  { id: 'kurosu', charId: 'kurosu', label: '黒須 駿', role: '別班工作員 / 相棒', org: 'beppan', type: 'char', x: 1680, y: 300, relText: '信頼の相棒' },
+  { id: 'sakurai', charId: 'sakurai', label: '桜井 里美', role: '別班 司令', org: 'beppan', type: 'char', x: 1650, y: 480, relText: '直属の上司' },
+  { id: 'nagano', charId: 'nagano', label: '長野 利彦', role: '専務 / S2別班員', org: 'beppan', type: 'char', x: 1400, y: 180, relText: 'S2覚醒 / 潜入' },
+
+  // 4. キャラクターノード — テント
+  { id: 'beki', charId: 'beki', label: 'ノゴーン・ベキ', role: '創始者 (乃木卓)', org: 'tent', type: 'char', x: 1720, y: 880, relText: '実の父親' },
+  { id: 'nokoru', charId: 'nokoru', label: 'ノコル', role: 'テントNo.2 / ムルーデル', org: 'tent', type: 'char', x: 1700, y: 1140, relText: '義理の兄弟' },
+  { id: 'ali', charId: 'ali', label: 'アリ', role: '元幹部 / バルカ銀行', org: 'tent', type: 'char', x: 1380, y: 1240, relText: '資金ルート' },
+
+  // 5. キャラクターノード — 公安
+  { id: 'nozaki', charId: 'nozaki', label: '野崎 守', role: '公安部 理事官', org: 'kouan', type: 'char', x: 220, y: 300, relText: '対峙・ライバル' },
+  { id: 'shinjo', charId: 'shinjo', label: '新庄 浩太郎', role: '公安 / モニター', org: 'kouan', type: 'char', x: 220, y: 480, relText: '二重スパイ' },
+  { id: 'toujou', charId: 'toujou', label: '東条 実', role: 'サイバー対策', org: 'kouan', type: 'char', x: 520, y: 180, relText: 'データ解析' },
+  { id: 'suzuki', charId: 'suzuki', label: '鈴木 祥太', role: 'サイバー捜査官', org: 'kouan', type: 'char', x: 740, y: 220, relText: 'サイバー追跡' },
+
+  // 6. キャラクターノード — 丸菱商事
+  { id: 'usami', charId: 'usami', label: '宇佐美 哲也', role: '社長', org: 'marubishi', type: 'char', x: 200, y: 880, relText: '丸菱トップ' },
+  { id: 'mizukami', charId: 'mizukami', label: '水上 志郎', role: '常務', org: 'marubishi', type: 'char', x: 180, y: 1040, relText: '社内抗争' },
+  { id: 'ota', charId: 'ota', label: '太田 梨花', role: 'blue@walker', org: 'marubishi', type: 'char', x: 440, y: 1240, relText: '天才ハッカー' },
+  { id: 'yamamoto', charId: 'yamamoto', label: '山本 巧', role: '業務部 / モニター', org: 'marubishi', type: 'char', x: 260, y: 1200, relText: '誤送金工作' },
+  { id: 'kawai', charId: 'kawai', label: '河合 幸二', role: 'エネルギー部 部長', org: 'marubishi', type: 'char', x: 680, y: 1040, relText: '直属の上司' },
+
+  // 7. キャラクターノード — 医療・バルカ・AI
+  { id: 'yuzuki', charId: 'yuzuki', label: '柚木 薫', role: 'WHO 医師', org: 'other', type: 'char', x: 1220, y: 1320, relText: '最愛の理解者' },
+  { id: 'hayato', charId: 'hayato', label: 'ハヤト（AI）', role: '高度自律型AI', org: 'other', type: 'char', x: 720, y: 1320, relText: '謎の知能' }
+];
+
+// ノード間の関係線（ブランチ＆クロスライン）
+const MINDMAP_CONNECTIONS = [
+  // 中央 (乃木) ──＞ 各勢力ハブ
+  { from: 'center_nogi', to: 'hub_beppan', org: 'beppan', label: '所属 (別班員)' },
+  { from: 'center_nogi', to: 'hub_tent', org: 'tent', label: '潜入・血縁関係' },
+  { from: 'center_nogi', to: 'hub_kouan', org: 'kouan', label: '捜査・協力関係' },
+  { from: 'center_nogi', to: 'hub_marubishi', org: 'marubishi', label: '表の顔 (エネルギー2課)' },
+  { from: 'center_nogi', to: 'hub_other', org: 'other', label: '絆・守るべき存在' },
+
+  // ハブ ──＞ 各キャラ
+  { from: 'hub_beppan', to: 'kurosu', org: 'beppan' },
+  { from: 'hub_beppan', to: 'sakurai', org: 'beppan' },
+  { from: 'hub_beppan', to: 'nagano', org: 'beppan' },
+
+  { from: 'hub_tent', to: 'beki', org: 'tent' },
+  { from: 'hub_tent', to: 'nokoru', org: 'tent' },
+  { from: 'hub_tent', to: 'ali', org: 'tent' },
+
+  { from: 'hub_kouan', to: 'nozaki', org: 'kouan' },
+  { from: 'hub_kouan', to: 'shinjo', org: 'kouan' },
+  { from: 'hub_kouan', to: 'toujou', org: 'kouan' },
+  { from: 'hub_kouan', to: 'suzuki', org: 'kouan' },
+
+  { from: 'hub_marubishi', to: 'usami', org: 'marubishi' },
+  { from: 'hub_marubishi', to: 'mizukami', org: 'marubishi' },
+  { from: 'hub_marubishi', to: 'ota', org: 'marubishi' },
+  { from: 'hub_marubishi', to: 'yamamoto', org: 'marubishi' },
+  { from: 'hub_marubishi', to: 'kawai', org: 'marubishi' },
+
+  { from: 'hub_other', to: 'yuzuki', org: 'other' },
+  { from: 'hub_other', to: 'hayato', org: 'other' },
+
+  // 重要キャラクター間の直接クロス関係線
+  { from: 'center_nogi', to: 'beki', org: 'tent', label: '実父 ⚔️' },
+  { from: 'center_nogi', to: 'nokoru', org: 'tent', label: '義弟' },
+  { from: 'center_nogi', to: 'nozaki', org: 'kouan', label: '信頼とライバル' },
+  { from: 'center_nogi', to: 'yuzuki', org: 'other', label: '恋人 ❤️' },
+  { from: 'center_nogi', to: 'kurosu', org: 'beppan', label: '相棒 🤝' },
+  { from: 'nagano', to: 'ota', org: 'marubishi', label: '過去の愛人' },
+  { from: 'shinjo', to: 'hub_tent', org: 'tent', label: '二重スパイ 🕵️' },
+  { from: 'yamamoto', to: 'ota', org: 'marubishi', label: '脅迫関係' }
+];
+
+// パン＆ズームの状態変数
+let mmState = {
+  scale: 0.85,
+  panX: 0,
+  panY: 0,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  hasInitialized: false
+};
+
+// マインドマップのビジュアル切り替え (mindmap ↔ grid)
+function switchRelationsView(viewMode) {
+  const btnMindmap = document.getElementById('btn-view-mindmap');
+  const btnGrid = document.getElementById('btn-view-grid');
+  const viewMindmap = document.getElementById('mindmap-view');
+  const viewGrid = document.getElementById('grid-view');
+
+  if (viewMode === 'mindmap') {
+    if (btnMindmap) btnMindmap.classList.add('active');
+    if (btnGrid) btnGrid.classList.remove('active');
+    if (viewMindmap) viewMindmap.classList.add('active');
+    if (viewGrid) viewGrid.classList.remove('active');
+    if (!mmState.hasInitialized) {
+      initMindmap();
+    }
+  } else {
+    if (btnGrid) btnGrid.classList.add('active');
+    if (btnMindmap) btnMindmap.classList.remove('active');
+    if (viewGrid) viewGrid.classList.add('active');
+    if (viewMindmap) viewMindmap.classList.remove('active');
+  }
+}
+window.switchRelationsView = switchRelationsView;
+
+// マインドマップ初期化＆描画
+function initMindmap() {
+  const viewport = document.getElementById('mindmap-viewport');
+  const board = document.getElementById('mindmap-board');
+  const svg = document.getElementById('mindmap-svg');
+  const nodesContainer = document.getElementById('mindmap-nodes');
+
+  if (!board || !svg || !nodesContainer || !viewport) return;
+
+  mmState.hasInitialized = true;
+
+  // 1. ノードDOM作成
+  nodesContainer.innerHTML = '';
+  const nodeMap = {};
+
+  MINDMAP_NODES.forEach(n => {
+    nodeMap[n.id] = n;
+    const el = document.createElement('div');
+    el.dataset.nodeId = n.id;
+    if (n.charId) el.dataset.charId = n.charId;
+    el.dataset.org = n.org;
+
+    if (n.type === 'center') {
+      el.className = 'mm-node mm-node-center';
+      el.innerHTML = `
+        <span class="mm-node-badge">CENTER</span>
+        <span class="mm-node-name">${n.label}</span>
+        <span class="mm-node-sub">堺 雅人</span>
+      `;
+    } else if (n.type === 'hub') {
+      el.className = `mm-node mm-node-hub ${n.org}`;
+      el.innerHTML = `<span>◈ ${n.label}</span>`;
+    } else {
+      el.className = `mm-node mm-node-char ${n.org}`;
+      el.innerHTML = `
+        <div class="mm-char-avatar">${n.label.substring(0, 2)}</div>
+        <div class="mm-char-info">
+          <span class="mm-char-name">${n.label}</span>
+          <span class="mm-char-role">${n.role}</span>
+          ${n.relText ? `<span class="mm-char-relation">❖ ${n.relText}</span>` : ''}
+        </div>
+      `;
+    }
+
+    el.style.left = `${n.x}px`;
+    el.style.top = `${n.y}px`;
+
+    // クリック・ホバーのイベント割り当て
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (n.charId && typeof openModal === 'function') {
+        openModal(n.charId, e);
+      }
+    });
+
+    el.addEventListener('mouseenter', () => highlightMindmapNode(n.id));
+    el.addEventListener('mouseleave', () => resetMindmapHighlight());
+
+    nodesContainer.appendChild(el);
+  });
+
+  // 2. SVGライン描画
+  svg.innerHTML = svg.querySelector('defs')?.outerHTML || '';
+
+  MINDMAP_CONNECTIONS.forEach((c, idx) => {
+    const fromNode = nodeMap[c.from];
+    const toNode = nodeMap[c.to];
+    if (!fromNode || !toNode) return;
+
+    // 滑らかなベジェ曲線の制御点計算
+    const dx = toNode.x - fromNode.x;
+    const dy = toNode.y - fromNode.y;
+    const cx1 = fromNode.x + dx * 0.4;
+    const cy1 = fromNode.y;
+    const cx2 = fromNode.x + dx * 0.6;
+    const cy2 = toNode.y;
+
+    const pathD = `M ${fromNode.x} ${fromNode.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${toNode.x} ${toNode.y}`;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pathD);
+    path.setAttribute('class', `mm-path ${c.org} ${c.from === 'center_nogi' ? 'center' : ''}`);
+    path.dataset.from = c.from;
+    path.dataset.to = c.to;
+    path.dataset.pathId = `path_${idx}`;
+    svg.appendChild(path);
+
+    // 関係性ラベルを表示
+    if (c.label) {
+      const midX = (fromNode.x + toNode.x) / 2;
+      const midY = (fromNode.y + toNode.y) / 2;
+      const labelLen = c.label.length * 11 + 16;
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', 'mm-label-group');
+
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', midX - labelLen / 2);
+      rect.setAttribute('y', midY - 11);
+      rect.setAttribute('width', labelLen);
+      rect.setAttribute('height', 22);
+      rect.setAttribute('class', 'mm-label-bg');
+
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', midX);
+      text.setAttribute('y', midY + 1);
+      text.setAttribute('class', 'mm-label-text');
+      text.textContent = c.label;
+
+      g.appendChild(rect);
+      g.appendChild(text);
+      svg.appendChild(g);
+    }
+  });
+
+  // 3. ビューポートの初期位置センタリング
+  centerMindmapBoard();
+
+  // 4. ドラッグ＆パンイベントの設定
+  setupMindmapPanAndZoom();
+}
+
+// ビューポート中央にセンタリング
+function centerMindmapBoard() {
+  const viewport = document.getElementById('mindmap-viewport');
+  if (!viewport) return;
+
+  const vw = viewport.clientWidth || 900;
+  const vh = viewport.clientHeight || 680;
+
+  mmState.scale = Math.min(vw / 1600, 0.85);
+  mmState.panX = (vw - MINDMAP_CONFIG.width * mmState.scale) / 2;
+  mmState.panY = (vh - MINDMAP_CONFIG.height * mmState.scale) / 2;
+
+  updateMindmapTransform();
+}
+
+// Transform更新
+function updateMindmapTransform() {
+  const board = document.getElementById('mindmap-board');
+  if (board) {
+    board.style.transform = `translate(${mmState.panX}px, ${mmState.panY}px) scale(${mmState.scale})`;
   }
 }
 
-// ナビゲーション切替時にX考察ページを初期化
+// ズームボタン操作
+function zoomMindmap(delta) {
+  const newScale = Math.max(0.35, Math.min(2.0, mmState.scale + delta));
+  const viewport = document.getElementById('mindmap-viewport');
+  if (viewport) {
+    const vw = viewport.clientWidth / 2;
+    const vh = viewport.clientHeight / 2;
+    mmState.panX -= (vw - mmState.panX) * (newScale / mmState.scale - 1);
+    mmState.panY -= (vh - mmState.panY) * (newScale / mmState.scale - 1);
+  }
+  mmState.scale = newScale;
+  updateMindmapTransform();
+}
+function resetMindmapZoom() {
+  centerMindmapBoard();
+}
+window.zoomMindmap = zoomMindmap;
+window.resetMindmapZoom = resetMindmapZoom;
+
+// パン＆ドラッグ操作
+function setupMindmapPanAndZoom() {
+  const viewport = document.getElementById('mindmap-viewport');
+  if (!viewport) return;
+
+  viewport.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.mm-node')) return;
+    mmState.isDragging = true;
+    mmState.startX = e.clientX - mmState.panX;
+    mmState.startY = e.clientY - mmState.panY;
+    viewport.setPointerCapture(e.pointerId);
+  });
+
+  viewport.addEventListener('pointermove', (e) => {
+    if (!mmState.isDragging) return;
+    mmState.panX = e.clientX - mmState.startX;
+    mmState.panY = e.clientY - mmState.startY;
+    updateMindmapTransform();
+  });
+
+  const stopDrag = (e) => {
+    if (mmState.isDragging) {
+      mmState.isDragging = false;
+      try { viewport.releasePointerCapture(e.pointerId); } catch(ex){}
+    }
+  };
+
+  viewport.addEventListener('pointerup', stopDrag);
+  viewport.addEventListener('pointercancel', stopDrag);
+
+  // マウスホイールズーム
+  viewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.08 : -0.08;
+    zoomMindmap(delta);
+  }, { passive: false });
+}
+
+// ノードホバー時のハイライト効果
+function highlightMindmapNode(nodeId) {
+  const paths = document.querySelectorAll('.mm-path');
+  const nodes = document.querySelectorAll('.mm-node');
+
+  const relatedNodes = new Set([nodeId]);
+
+  paths.forEach(p => {
+    const from = p.dataset.from;
+    const to = p.dataset.to;
+    if (from === nodeId || to === nodeId) {
+      p.classList.add('active');
+      p.classList.remove('dimmed');
+      relatedNodes.add(from);
+      relatedNodes.add(to);
+    } else {
+      p.classList.remove('active');
+      p.classList.add('dimmed');
+    }
+  });
+
+  nodes.forEach(n => {
+    const id = n.dataset.nodeId;
+    if (relatedNodes.has(id)) {
+      n.classList.add('highlighted');
+      n.classList.remove('dimmed');
+    } else {
+      n.classList.remove('highlighted');
+      n.classList.add('dimmed');
+    }
+  });
+}
+
+function resetMindmapHighlight() {
+  const paths = document.querySelectorAll('.mm-path');
+  const nodes = document.querySelectorAll('.mm-node');
+
+  paths.forEach(p => {
+    p.classList.remove('active');
+    p.classList.remove('dimmed');
+  });
+
+  nodes.forEach(n => {
+    n.classList.remove('highlighted');
+    n.classList.remove('dimmed');
+  });
+}
+
+// フィルタリング処理の連動
 document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.nav-btn[data-page="analysis"]');
+  const filterBtn = e.target.closest('#page-relations .filter-btn[data-filter]');
+  if (!filterBtn) return;
+
+  const filter = filterBtn.dataset.filter;
+  const nodes = document.querySelectorAll('.mm-node');
+  const paths = document.querySelectorAll('.mm-path');
+
+  nodes.forEach(n => {
+    const org = n.dataset.org;
+    if (filter === 'all' || org === filter || n.dataset.nodeId === 'center_nogi') {
+      n.classList.remove('dimmed');
+    } else {
+      n.classList.add('dimmed');
+    }
+  });
+
+  paths.forEach(p => {
+    const org = p.classList.contains(filter);
+    if (filter === 'all' || org) {
+      p.classList.remove('dimmed');
+    } else {
+      p.classList.add('dimmed');
+    }
+  });
+});
+
+// ページ切り替え時にマインドマップを初期化
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav-btn[data-page="relations"]');
   if (btn) {
-    setTimeout(initAnalysisPage, 150);
+    setTimeout(() => {
+      const viewMindmap = document.getElementById('mindmap-view');
+      if (viewMindmap && viewMindmap.classList.contains('active')) {
+        if (!mmState.hasInitialized) {
+          initMindmap();
+        } else {
+          centerMindmapBoard();
+        }
+      }
+    }, 150);
   }
 });
 
-// DOMロード時にX考察ページが最初から表示されている場合にも初期化
+// 初期ロード時にもし相関図ページが表示されていたら動かす
 document.addEventListener('DOMContentLoaded', () => {
-  const analysisPage = document.getElementById('page-analysis');
-  if (analysisPage && analysisPage.classList.contains('active')) {
-    setTimeout(initAnalysisPage, 200);
-  }
+  setTimeout(() => {
+    const pageRel = document.getElementById('page-relations');
+    if (pageRel && pageRel.classList.contains('active')) {
+      initMindmap();
+    }
+  }, 250);
 });
+
 
 

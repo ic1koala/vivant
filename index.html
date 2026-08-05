@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Oswald:wght@300;400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
   <script>
@@ -821,256 +821,316 @@
 
     <section id="page-relations" class="page">
       <div class="page-header">
-        <div class="page-tag">ANALYSIS</div>
-        <h2 class="page-title">登場人物 <span class="accent">相関図</span></h2>
-        <p class="page-desc">主要人物と各組織の関係性マップ</p>
+        <div class="page-tag">MINDMAP ANALYSIS</div>
+        <h2 class="page-title">登場人物 <span class="accent">相関図マインドマップ</span></h2>
+        <p class="page-desc">主要人物と各組織の関係性をダイナミックな放射状マインドマップで可視化</p>
       </div>
 
-      <!-- Relations Filter -->
-      <div class="filter-bar">
-        <button class="filter-btn active" data-filter="all">全員</button>
-        <button class="filter-btn" data-filter="beppan">別班</button>
-        <button class="filter-btn" data-filter="tent">テント</button>
-        <button class="filter-btn" data-filter="kouan">公安</button>
-        <button class="filter-btn" data-filter="other">その他</button>
+      <!-- View Controls & Filter Bar -->
+      <div class="mindmap-controls-bar">
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-view-mindmap" onclick="switchRelationsView('mindmap')">
+            <span>🧠 マインドマップ</span>
+          </button>
+          <button class="view-btn" id="btn-view-grid" onclick="switchRelationsView('grid')">
+            <span>𝎀 グリッドカード</span>
+          </button>
+        </div>
+
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">全員</button>
+          <button class="filter-btn" data-filter="beppan">別班</button>
+          <button class="filter-btn" data-filter="tent">テント</button>
+          <button class="filter-btn" data-filter="kouan">公安</button>
+          <button class="filter-btn" data-filter="marubishi">丸菱</button>
+          <button class="filter-btn" data-filter="other">その他</button>
+        </div>
       </div>
 
-      <!-- Relations Network -->
+      <!-- Relations Container -->
       <div class="relations-container">
-        <canvas id="relationsCanvas"></canvas>
-
-        <!-- Character Cards Grid -->
-        <div class="character-grid">
-          <div class="char-card" data-org="other" data-id="usami" onclick="openModal('usami', event)">
-            <div class="char-info">
-              <div class="char-name-wrap">
-                <a href="https://www.google.com/search?tbm=isch&q=VIVANT+宇佐美哲也" target="_blank" class="char-name-link" title="宇佐美 哲也" rel="noopener">
-                  <span class="char-name">宇佐美 哲也</span>
-                  <span class="search-icon">🔍</span>
-                </a>
-              </div>
-              <div class="char-role">丸菱商事 社長</div>
-              <div class="char-actor">市川 猿弥</div>
-            </div>
-            <div class="char-detail-btn">詳細 ▼</div>
-          </div>
-          <div class="char-card" data-org="other" data-id="mizukami" onclick="openModal('mizukami', event)">
-            <div class="char-info">
-              <div class="char-name-wrap">
-                <a href="https://www.google.com/search?tbm=isch&q=VIVANT+水上志郎" target="_blank" class="char-name-link" title="水上 志郎" rel="noopener">
-                  <span class="char-name">水上 志郎</span>
-                  <span class="search-icon">🔍</span>
-                </a>
-              </div>
-              <div class="char-role">丸菱商事 常務</div>
-              <div class="char-actor">古舘 寛治</div>
-            </div>
-            <div class="char-detail-btn">詳細 ▼</div>
+        
+        <!-- MINDMAP VIEW (Default Interactive View) -->
+        <div id="mindmap-view" class="mindmap-wrapper active">
+          <div class="mindmap-hint">
+            <span>💡 マウス/タッチドラッグで移動 ・ ＋－ボタンで拡大縮小 ・ ノードタップでキャラ詳細</span>
           </div>
 
-          <!-- 乃木 (Center/Main) -->
-          <div class="char-card protagonist" data-org="beppan" data-id="nogi" onclick="openModal('nogi', event)">
-            <div class="char-badge beppan-badge">別班</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar nogi-avatar">
-                <span>乃木</span>
-              </div>
-              <div class="org-dots">
-                <span class="dot beppan-dot" title="別班"></span>
-                <span class="dot tent-dot" title="テント関係"></span>
-              </div>
-            </div>
-            <div class="char-name">乃木 憂助</div>
-            <div class="char-role">丸菱商事社員 / 別班工作員</div>
-            <div class="char-actor">堺 雅人</div>
-            <div class="char-tags">
-              <span class="tag">主人公</span>
-              <span class="tag">別人格F</span>
-              <span class="tag">ベキの実子</span>
-            </div>
+          <div class="mindmap-zoom-tools">
+            <button class="zoom-btn" onclick="zoomMindmap(0.15)" title="拡大">＋</button>
+            <button class="zoom-btn" onclick="resetMindmapZoom()" title="全体リセット">⟲ 100%</button>
+            <button class="zoom-btn" onclick="zoomMindmap(-0.15)" title="縮小">－</button>
           </div>
 
-          <!-- 野崎 -->
-          <div class="char-card" data-org="kouan" data-id="nozaki" onclick="openModal('nozaki', event)">
-            <div class="char-badge kouan-badge">公安</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar nozaki-avatar">
-                <span>野崎</span>
-              </div>
-            </div>
-            <div class="char-name">野崎 守</div>
-            <div class="char-role">公安部外事第4課 理事官</div>
-            <div class="char-actor">阿部 寛</div>
-            <div class="char-tags">
-              <span class="tag">乃木の対峙者</span>
-              <span class="tag">協力者</span>
+          <div class="mindmap-viewport" id="mindmap-viewport">
+            <div class="mindmap-board" id="mindmap-board">
+              <!-- SVG Connection Lines Layer -->
+              <svg id="mindmap-svg" class="mindmap-svg" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <!-- Neon Glow Filters for Lines -->
+                  <filter id="glow-gold" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                  <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                  <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+              </svg>
+
+              <!-- Mindmap Nodes Layer -->
+              <div id="mindmap-nodes" class="mindmap-nodes"></div>
             </div>
           </div>
+        </div>
 
-          <!-- 柚木 -->
-          <div class="char-card" data-org="other" data-id="yuzuki" onclick="openModal('yuzuki', event)">
-            <div class="char-badge other-badge">世界医療</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar yuzuki-avatar">
-                <span>柚木</span>
+        <!-- GRID VIEW (Alternative Grid Layout) -->
+        <div id="grid-view" class="grid-wrapper">
+          <div class="character-grid">
+            <div class="char-card" data-org="other" data-id="usami" onclick="openModal('usami', event)">
+              <div class="char-info">
+                <div class="char-name-wrap">
+                  <a href="https://www.google.com/search?tbm=isch&q=VIVANT+宇佐美哲也" target="_blank" class="char-name-link" title="宇佐美 哲也" rel="noopener">
+                    <span class="char-name">宇佐美 哲也</span>
+                    <span class="search-icon">🔍</span>
+                  </a>
+                </div>
+                <div class="char-role">丸菱商事 社長</div>
+                <div class="char-actor">市川 猿弥</div>
+              </div>
+              <div class="char-detail-btn">詳細 ▼</div>
+            </div>
+
+            <div class="char-card" data-org="other" data-id="mizukami" onclick="openModal('mizukami', event)">
+              <div class="char-info">
+                <div class="char-name-wrap">
+                  <a href="https://www.google.com/search?tbm=isch&q=VIVANT+水上志郎" target="_blank" class="char-name-link" title="水上 志郎" rel="noopener">
+                    <span class="char-name">水上 志郎</span>
+                    <span class="search-icon">🔍</span>
+                  </a>
+                </div>
+                <div class="char-role">丸菱商事 常務</div>
+                <div class="char-actor">古舘 寛治</div>
+              </div>
+              <div class="char-detail-btn">詳細 ▼</div>
+            </div>
+
+            <!-- 乃木 (Center/Main) -->
+            <div class="char-card protagonist" data-org="beppan" data-id="nogi" onclick="openModal('nogi', event)">
+              <div class="char-badge beppan-badge">別班</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar nogi-avatar">
+                  <span>乃木</span>
+                </div>
+                <div class="org-dots">
+                  <span class="dot beppan-dot" title="別班"></span>
+                  <span class="dot tent-dot" title="テント関係"></span>
+                </div>
+              </div>
+              <div class="char-name">乃木 憂助</div>
+              <div class="char-role">丸菱商事社員 / 別班工作員</div>
+              <div class="char-actor">堺 雅人</div>
+              <div class="char-tags">
+                <span class="tag">主人公</span>
+                <span class="tag">別人格F</span>
+                <span class="tag">ベキの実子</span>
               </div>
             </div>
-            <div class="char-name">柚木 薫</div>
-            <div class="char-role">世界医療機構医師</div>
-            <div class="char-actor">二階堂 ふみ</div>
-            <div class="char-tags">
-              <span class="tag">乃木の理解者</span>
-              <span class="tag">バルカで出会う</span>
+
+            <!-- 野崎 -->
+            <div class="char-card" data-org="kouan" data-id="nozaki" onclick="openModal('nozaki', event)">
+              <div class="char-badge kouan-badge">公安</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar nozaki-avatar">
+                  <span>野崎</span>
+                </div>
+              </div>
+              <div class="char-name">野崎 守</div>
+              <div class="char-role">公安部外事第4課 理事官</div>
+              <div class="char-actor">阿部 寛</div>
+              <div class="char-tags">
+                <span class="tag">乃木の対峙者</span>
+                <span class="tag">協力者</span>
+              </div>
             </div>
+
+            <!-- 柚木 -->
+            <div class="char-card" data-org="other" data-id="yuzuki" onclick="openModal('yuzuki', event)">
+              <div class="char-badge other-badge">世界医療</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar yuzuki-avatar">
+                  <span>柚木</span>
+                </div>
+              </div>
+              <div class="char-name">柚木 薫</div>
+              <div class="char-role">世界医療機構医師</div>
+              <div class="char-actor">二階堂 ふみ</div>
+              <div class="char-tags">
+                <span class="tag">乃木の理解者</span>
+                <span class="tag">バルカで出会う</span>
+              </div>
+            </div>
+
+            <!-- 黒須 -->
+            <div class="char-card" data-org="beppan" data-id="kurosu" onclick="openModal('kurosu', event)">
+              <div class="char-badge beppan-badge">別班</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar kurosu-avatar">
+                  <span>黒須</span>
+                </div>
+              </div>
+              <div class="char-name">黒須 駿</div>
+              <div class="char-role">別班工作員 / 乃木の相棒</div>
+              <div class="char-actor">松坂 桃李</div>
+              <div class="char-tags">
+                <span class="tag">乃木の相棒</span>
+                <span class="tag">S2継続</span>
+              </div>
+            </div>
+
+            <!-- ベキ -->
+            <div class="char-card" data-org="tent" data-id="beki" onclick="openModal('beki', event)">
+              <div class="char-badge tent-badge">テント</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar beki-avatar">
+                  <span>ベキ</span>
+                </div>
+              </div>
+              <div class="char-name">ノゴーン・ベキ</div>
+              <div class="char-role">テントリーダー（S1終了）/ 乃木の父</div>
+              <div class="char-actor">役所 広司</div>
+              <div class="char-tags">
+                <span class="tag">元公安警察官</span>
+                <span class="tag">乃木の実父</span>
+                <span class="tag">乃木卓</span>
+              </div>
+            </div>
+
+            <!-- ノコル -->
+            <div class="char-card" data-org="tent" data-id="nokoru" onclick="openModal('nokoru', event)">
+              <div class="char-badge tent-badge">テント</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar nokoru-avatar">
+                  <span>ノコル</span>
+                </div>
+              </div>
+              <div class="char-name">ノコル</div>
+              <div class="char-role">テントNo.2 / ムルーデル代表</div>
+              <div class="char-actor">二宮 和也</div>
+              <div class="char-tags">
+                <span class="tag">ベキの義子</span>
+                <span class="tag">乃木の義弟</span>
+                <span class="tag">S2主要</span>
+              </div>
+            </div>
+
+            <!-- 桜井 -->
+            <div class="char-card" data-org="beppan" data-id="sakurai" onclick="openModal('sakurai', event)">
+              <div class="char-badge beppan-badge">別班</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar sakurai-avatar">
+                  <span>桜井</span>
+                </div>
+              </div>
+              <div class="char-name">桜井 里美</div>
+              <div class="char-role">別班 司令塔</div>
+              <div class="char-actor">キムラ 緑子</div>
+              <div class="char-tags">
+                <span class="tag">別班幹部</span>
+              </div>
+            </div>
+
+            <!-- 長野 -->
+            <div class="char-card" data-org="beppan" data-id="nagano" onclick="openModal('nagano', event)">
+              <div class="char-badge beppan-badge">別班</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar nagano-avatar">
+                  <span>長野</span>
+                </div>
+                <div class="org-dots">
+                  <span class="dot beppan-dot" title="別班"></span>
+                  <span class="dot warning-dot" title="疑惑あり"></span>
+                </div>
+              </div>
+              <div class="char-name">長野 利彦</div>
+              <div class="char-role">丸菱商事専務 / S2別班員</div>
+              <div class="char-actor">小日向 文世</div>
+              <div class="char-tags">
+                <span class="tag">S2から別班</span>
+                <span class="tag">黒幕疑惑</span>
+              </div>
+            </div>
+
+            <!-- 新庄 -->
+            <div class="char-card" data-org="kouan" data-id="shinjo" onclick="openModal('shinjo', event)">
+              <div class="char-badge kouan-badge">公安</div>
+              <div class="char-avatar-wrap">
+                <div class="char-avatar shinjo-avatar">
+                  <span>新庄</span>
+                </div>
+                <div class="org-dots">
+                  <span class="dot kouan-dot" title="公安"></span>
+                  <span class="dot tent-dot" title="テントモニター"></span>
+                </div>
+              </div>
+              <div class="char-name">新庄 浩太郎</div>
+              <div class="char-role">公安部 / テントモニター（二重スパイ）</div>
+              <div class="char-actor">竜星 涼</div>
+              <div class="char-tags">
+                <span class="tag">二重スパイ</span>
+                <span class="tag">タイ逃亡</span>
+                <span class="tag">要注意</span>
+              </div>
+            </div>
+
           </div>
-
-          <!-- 黒須 -->
-          <div class="char-card" data-org="beppan" data-id="kurosu" onclick="openModal('kurosu', event)">
-            <div class="char-badge beppan-badge">別班</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar kurosu-avatar">
-                <span>黒須</span>
-              </div>
-            </div>
-            <div class="char-name">黒須 駿</div>
-            <div class="char-role">別班工作員 / 乃木の相棒</div>
-            <div class="char-actor">松坂 桃李</div>
-            <div class="char-tags">
-              <span class="tag">乃木の相棒</span>
-              <span class="tag">S2継続</span>
-            </div>
-          </div>
-
-          <!-- ベキ -->
-          <div class="char-card" data-org="tent" data-id="beki" onclick="openModal('beki', event)">
-            <div class="char-badge tent-badge">テント</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar beki-avatar">
-                <span>ベキ</span>
-              </div>
-            </div>
-            <div class="char-name">ノゴーン・ベキ</div>
-            <div class="char-role">テントリーダー（S1終了）/ 乃木の父</div>
-            <div class="char-actor">役所 広司</div>
-            <div class="char-tags">
-              <span class="tag">元公安警察官</span>
-              <span class="tag">乃木の実父</span>
-              <span class="tag">乃木卓</span>
-            </div>
-          </div>
-
-          <!-- ノコル -->
-          <div class="char-card" data-org="tent" data-id="nokoru" onclick="openModal('nokoru', event)">
-            <div class="char-badge tent-badge">テント</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar nokoru-avatar">
-                <span>ノコル</span>
-              </div>
-            </div>
-            <div class="char-name">ノコル</div>
-            <div class="char-role">テントNo.2 / ムルーデル代表</div>
-            <div class="char-actor">二宮 和也</div>
-            <div class="char-tags">
-              <span class="tag">ベキの義子</span>
-              <span class="tag">乃木の義弟</span>
-              <span class="tag">S2主要</span>
-            </div>
-          </div>
-
-          <!-- 桜井 -->
-          <div class="char-card" data-org="beppan" data-id="sakurai" onclick="openModal('sakurai', event)">
-            <div class="char-badge beppan-badge">別班</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar sakurai-avatar">
-                <span>桜井</span>
-              </div>
-            </div>
-            <div class="char-name">桜井 里美</div>
-            <div class="char-role">別班 司令塔</div>
-            <div class="char-actor">キムラ 緑子</div>
-            <div class="char-tags">
-              <span class="tag">別班幹部</span>
-            </div>
-          </div>
-
-          <!-- 長野 -->
-          <div class="char-card" data-org="beppan" data-id="nagano" onclick="openModal('nagano', event)">
-            <div class="char-badge beppan-badge">別班</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar nagano-avatar">
-                <span>長野</span>
-              </div>
-              <div class="org-dots">
-                <span class="dot beppan-dot" title="別班"></span>
-                <span class="dot warning-dot" title="疑惑あり"></span>
-              </div>
-            </div>
-            <div class="char-name">長野 利彦</div>
-            <div class="char-role">丸菱商事専務 / S2別班員</div>
-            <div class="char-actor">小日向 文世</div>
-            <div class="char-tags">
-              <span class="tag">S2から別班</span>
-              <span class="tag">黒幕疑惑</span>
-            </div>
-          </div>
-
-          <!-- 新庄 -->
-          <div class="char-card" data-org="kouan" data-id="shinjo" onclick="openModal('shinjo', event)">
-            <div class="char-badge kouan-badge">公安</div>
-            <div class="char-avatar-wrap">
-              <div class="char-avatar shinjo-avatar">
-                <span>新庄</span>
-              </div>
-              <div class="org-dots">
-                <span class="dot kouan-dot" title="公安"></span>
-                <span class="dot tent-dot" title="テントモニター"></span>
-              </div>
-            </div>
-            <div class="char-name">新庄 浩太郎</div>
-            <div class="char-role">公安部 / テントモニター（二重スパイ）</div>
-            <div class="char-actor">竜星 涼</div>
-            <div class="char-tags">
-              <span class="tag">二重スパイ</span>
-              <span class="tag">タイ逃亡</span>
-              <span class="tag">要注意</span>
-            </div>
-          </div>
-
         </div>
 
         <!-- Relationship Legend -->
         <div class="relation-legend">
-          <h4>関係性の凡例</h4>
+          <h4>勢力・関係性カラー</h4>
           <div class="legend-items">
             <div class="legend-item">
-              <div class="legend-line beppan-line"></div>
-              <span>別班</span>
+              <span class="legend-dot dot-center"></span>
+              <span>核心・主人公 (乃木)</span>
             </div>
             <div class="legend-item">
-              <div class="legend-line tent-line"></div>
-              <span>テント</span>
+              <span class="legend-dot dot-beppan"></span>
+              <span>別班 (BEPPAN)</span>
             </div>
             <div class="legend-item">
-              <div class="legend-line kouan-line"></div>
-              <span>公安</span>
+              <span class="legend-dot dot-tent"></span>
+              <span>テント (TENT)</span>
             </div>
             <div class="legend-item">
-              <div class="legend-line double-line"></div>
-              <span>二重所属/疑惑</span>
+              <span class="legend-dot dot-kouan"></span>
+              <span>公安 (KOUAN)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-marubishi"></span>
+              <span>丸菱商事</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-other"></span>
+              <span>医療・バルカ・AI</span>
             </div>
           </div>
         </div>
 
-        <!-- Relationship Detail Panel -->
-        <div class="relation-detail-panel" id="rel-detail-panel">
-          <div class="panel-header">
-            <span id="rel-panel-name">人物を選択</span>
-            <button class="panel-close" id="panel-close">✕</button>
-          </div>
-          <div class="panel-content" id="rel-panel-content">
-            <p class="panel-prompt">カードをクリックして人物の詳細な関係性を確認</p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -1306,6 +1366,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>
+
