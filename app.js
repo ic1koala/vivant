@@ -739,6 +739,28 @@ const characterMaster = {
     storyline: '【シーズン1】誤送金の手続き最終確認を行った人物として公安・別班の調査対象となった。',
     relations: ['太田梨花（財務部）', '山本巧（業務部）', '宇佐美社長（上司）'],
     googleQuery: 'VIVANT 原部長 橋本さとし'
+  },
+
+  jameen: {
+    name: 'ジャミーン',
+    actor: 'Nandin-Erdene Khongorzul',
+    org: 'バルカ共和国 少女 / 乃木・薫が救った命',
+    position: '【バルカの少女】乃木や薫、アディエル（父）に愛される少女。善悪を本能で見抜く純粋な心を持つ。',
+    profile: 'バルカ共和国で父アディエルと暮らしていた少女。アディエル爆死のショックで一時的に会話ができなくなり、深刻な心臓疾患を抱えていたが、乃木らの支援と薫の執刀・日本での手術により一命を取り留める。人の善悪を直感で感知する特殊な感性を持つ。',
+    storyline: '【シーズン1】バルカでの爆破事件で父を失い、乃木と薫により命を救われ日本へ渡航。クラウドファンディングや乃木の支援で手術に成功。\n【シーズン2】すっかり元気を取り戻し、乃木・薫・野崎らに見守られながら元気に成長中。',
+    relations: ['柚木薫（命の恩人・医師）', '乃木憂助（命の恩人・支援者）', '野崎守（見守る存在）'],
+    googleQuery: 'VIVANT ジャミーン'
+  },
+
+  doram: {
+    name: 'ドラム',
+    actor: '富栄 ドラム（声：林原 めぐみ）',
+    org: '警視庁公安部 協力者 / 野崎の有能な助手',
+    position: '【野崎の最強相棒】音声翻訳アプリで会話する巨体にして驚異的な身体能力を持つ公安協力者。',
+    profile: '野崎理事官の忠実で超有能な協力者。スマートフォンの音声翻訳アプリ（CV：林原めぐみ）を通じて会話する。格闘・運転・追跡・潜入・料理などあらゆるスキルに秀でる愛されキャラクター。',
+    storyline: '【シーズン1】バルカ脱出劇で野崎・乃木らを陰から絶大にサポート。爆走ドライブや追跡回避で幾度も危機を救う。\n【シーズン2】野崎の右腕として公安の日本国内・海外捜査にフル稼働。',
+    relations: ['野崎守（直属の上司・相棒）', '乃木憂助（仲間・協力者）', '柚木薫（仲間）'],
+    googleQuery: 'VIVANT ドラム 富栄ドラム'
   }
 };
 
@@ -1127,7 +1149,9 @@ const MINDMAP_NODES = [
   { id: 'kawai', charId: 'kawai', label: '河合 幸二', role: 'エネルギー部 部長', org: 'marubishi', type: 'char', x: 680, y: 1040, relText: '直属の上司' },
 
   // 7. キャラクターノード — 医療・バルカ・AI
-  { id: 'yuzuki', charId: 'yuzuki', label: '柚木 薫', role: 'WHO 医師', org: 'other', type: 'char', x: 1220, y: 1320, relText: '最愛の理解者' },
+  { id: 'yuzuki', charId: 'yuzuki', label: '柚木 薫', role: 'WHO 医師', org: 'other', type: 'char', x: 1180, y: 1320, relText: '最愛の理解者' },
+  { id: 'jameen', charId: 'jameen', label: 'ジャミーン', role: 'バルカの少女', org: 'other', type: 'char', x: 1420, y: 1320, relText: '救った少女' },
+  { id: 'doram', charId: 'doram', label: 'ドラム', role: '野崎の助手・協力者', org: 'other', type: 'char', x: 950, y: 1350, relText: '最強のバディ' },
   { id: 'hayato', charId: 'hayato', label: 'ハヤト（AI）', role: '高度自律型AI', org: 'other', type: 'char', x: 720, y: 1320, relText: '謎の知能' }
 ];
 
@@ -1161,6 +1185,8 @@ const MINDMAP_CONNECTIONS = [
   { from: 'hub_marubishi', to: 'kawai', org: 'marubishi' },
 
   { from: 'hub_other', to: 'yuzuki', org: 'other' },
+  { from: 'hub_other', to: 'jameen', org: 'other' },
+  { from: 'hub_other', to: 'doram', org: 'other' },
   { from: 'hub_other', to: 'hayato', org: 'other' },
 
   // 重要キャラクター間の直接クロス関係線
@@ -1169,6 +1195,10 @@ const MINDMAP_CONNECTIONS = [
   { from: 'center_nogi', to: 'nozaki', org: 'kouan', label: '信頼とライバル' },
   { from: 'center_nogi', to: 'yuzuki', org: 'other', label: '恋人 ❤️' },
   { from: 'center_nogi', to: 'kurosu', org: 'beppan', label: '相棒 🤝' },
+  { from: 'yuzuki', to: 'jameen', org: 'other', label: '主治医・守る存在 🩺' },
+  { from: 'center_nogi', to: 'jameen', org: 'other', label: '手術費支援 💖' },
+  { from: 'nozaki', to: 'doram', org: 'kouan', label: '最強のバディ 🤝' },
+  { from: 'center_nogi', to: 'doram', org: 'other', label: '頼れる仲間 🚗' },
   { from: 'nagano', to: 'ota', org: 'marubishi', label: '過去の愛人' },
   { from: 'shinjo', to: 'hub_tent', org: 'tent', label: '二重スパイ 🕵️' },
   { from: 'yamamoto', to: 'ota', org: 'marubishi', label: '脅迫関係' }

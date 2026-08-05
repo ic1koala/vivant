@@ -1053,6 +1053,8 @@ body {
 .sakurai-avatar { background: radial-gradient(circle, rgba(41, 128, 185, 0.1), rgba(26, 58, 92, 0.2)); border-color: var(--beppan-light); }
 .nagano-avatar { background: radial-gradient(circle, rgba(212, 148, 58, 0.1), rgba(26, 58, 92, 0.2)); border-color: rgba(212, 148, 58, 0.4); }
 .shinjo-avatar { background: radial-gradient(circle, rgba(192, 57, 43, 0.1), rgba(39, 174, 96, 0.1)); border-color: rgba(160, 100, 100, 0.5); }
+.jameen-avatar { background: radial-gradient(circle, rgba(235, 150, 180, 0.2), rgba(160, 80, 120, 0.2)); border-color: #eb96b4; }
+.doram-avatar { background: radial-gradient(circle, rgba(52, 152, 219, 0.2), rgba(39, 174, 96, 0.2)); border-color: #3498db; }
 
 .char-card:hover .char-avatar {
   transform: scale(1.05);
